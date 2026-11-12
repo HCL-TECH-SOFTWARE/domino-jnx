@@ -113,7 +113,7 @@ public enum DocumentClass implements INumberEnum<Short> {
     return DocumentClass.classesByValue.get((short) val);
   }
 
-  private short m_val;
+  private final short m_val;
 
   DocumentClass(final short val) {
     this.m_val = val;
@@ -127,5 +127,10 @@ public enum DocumentClass implements INumberEnum<Short> {
   @Override
   public Short getValue() {
     return this.m_val;
+  }
+  
+  @Override
+  public boolean isSkipInLookup() {
+    return m_val == 0;
   }
 }

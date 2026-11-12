@@ -2,7 +2,6 @@ package com.hcl.domino.jna.data.types;
 
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.data.types.WORD;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByReference;
 
 public class WordByReference extends ByReference implements WORD.ByReference {
@@ -39,7 +38,6 @@ public class WordByReference extends ByReference implements WORD.ByReference {
 
   @Override
   public String toString() {
-    return String.format("char@0x%1$x=0x%2$x (%2$d)", Pointer.nativeValue(getPointer()),
-        getValue());
+    return "[WordByReference: 0x" + Integer.toHexString(getValue()) + ']';
   }
 }

@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -52,6 +53,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAItemAllocations;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
+import com.hcl.domino.jna.utils.ThreadBuffers;
 import com.hcl.domino.mime.MimeEntity;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
@@ -169,36 +171,35 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
       ByteByReference retSeqByte = new ByteByReference();
       ByteByReference retDupItemID = new ByteByReference();
 
-      try (DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-        WordByReference retName_len = new WordByReference();
-        WordByReference retItem_flags = new WordByReference();
-        WordByReference retDataType = new WordByReference();
-        IntByReference retValueLen = new IntByReference();
+      ByteBuffer item_name = ThreadBuffers.BUFFER_USERNAME.get();
+      WordByReference retName_len = new WordByReference();
+      WordByReference retItem_flags = new WordByReference();
+      WordByReference retDataType = new WordByReference();
+      IntByReference retValueLen = new IntByReference();
 
-        NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
-        itemBlockIdByVal.pool = m_itemBlockId.getPool();
-        itemBlockIdByVal.block = m_itemBlockId.getBlock();
+      NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
+      itemBlockIdByVal.pool = m_itemBlockId.getPool();
+      itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
-        int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
-        try (DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId)) {
-          LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
-            NotesCAPI.get().NSFItemQueryEx(noteHandleByVal, itemBlockIdByVal, item_name,
-                word(item_name.size()),
-                retName_len, retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte,
-                retDupItemID);
+      int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
+      try (DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId)) {
+        LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
+          NotesCAPI.get().NSFItemQueryEx(noteHandleByVal, itemBlockIdByVal, item_name,
+              TypedConstants.MAXUSERNAME,
+              retName_len, retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte,
+              retDupItemID);
 
-            return 0;
-          });
-        }
-
-        m_dataType = retDataType.getValue();
-        m_seq = retSeqByte.getValue();
-        m_dupItemId = retDupItemID.getValue();
-        m_itemFlags = retItem_flags.getValue();
-        m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue());
-        m_valueLength = retValueLen.getValue();
-        m_itemFlagsLoaded = true;
+          return 0;
+        });
       }
+
+      m_dataType = retDataType.getValue();
+      m_seq = retSeqByte.getValue();
+      m_dupItemId = retDupItemID.getValue();
+      m_itemFlags = retItem_flags.getValue();
+      m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue());
+      m_valueLength = retValueLen.getValue();
+      m_itemFlagsLoaded = true;
     }
 
 	@Override
@@ -308,7 +309,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
     public String getAsText(char separator) {
       checkDisposed();
 
-      try (DisposableMemory returnBuf = new DisposableMemory(60 * 1024)) {
+      ByteBuffer returnBuf = ThreadBuffers.BUFFER_SIXTY_DB.get();
         // Preload these, as they may use THREAD_BLOCKID
         short typeValue = (short)getTypeValue();
         int valueLength = getValueLength();
@@ -317,16 +318,9 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
         blockId.block = m_valueBlockId.getBlock();
         blockId.pool = m_valueBlockId.getPool();
         blockId.write();
-        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText(word(typeValue),
-            blockId, valueLength, returnBuf, word(60 * 1024), separator);
-        int txtLength = txtLengthAsShort & 0xffff;
-        if (txtLength == 0) {
-          return ""; //$NON-NLS-1$
-        } else {
-          return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
-        }
-
-      }
+        int txtLength = NotesCAPI.get().NSFItemConvertValueToText(word(typeValue),
+            blockId, valueLength, returnBuf, word(60 * 1024), separator).getValue();
+        return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
     }
 	
 	@Override

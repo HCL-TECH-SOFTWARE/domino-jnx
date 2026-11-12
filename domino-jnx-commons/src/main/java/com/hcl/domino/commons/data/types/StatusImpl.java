@@ -9,11 +9,19 @@ import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.misc.NotesConstants;
 
 public class StatusImpl implements STATUS {
-  public static final StatusImpl NOERROR = of(INotesErrorConstants.NOERROR);
-  public static final StatusImpl NOT_FOUND = of(INotesErrorConstants.ERR_NOT_FOUND);
+  public static final StatusImpl NOERROR = new StatusImpl(INotesErrorConstants.NOERROR);
+  public static final StatusImpl NOT_FOUND = new StatusImpl(INotesErrorConstants.ERR_NOT_FOUND);
+  private static final StatusImpl NSF_INTERRUPT = new StatusImpl(INotesErrorConstants.ERR_NSF_INTERRUPT);
+  private static final StatusImpl ITEM_NOT_FOUND = new StatusImpl(INotesErrorConstants.ERR_ITEM_NOT_FOUND);
   
   public static StatusImpl of(short value) {
-    return NotesErrorUtils.STATUS_CACHE.computeIfAbsent(value, StatusImpl::new);
+    switch(value) {
+      case INotesErrorConstants.NOERROR: return NOERROR;
+      case INotesErrorConstants.ERR_NOT_FOUND: return NOT_FOUND;
+      case INotesErrorConstants.ERR_NSF_INTERRUPT: return NSF_INTERRUPT;
+      case INotesErrorConstants.ERR_ITEM_NOT_FOUND: return ITEM_NOT_FOUND;
+      default: return NotesErrorUtils.STATUS_CACHE.computeIfAbsent(value, StatusImpl::new);
+    } 
   }
   
   private final short value;
@@ -86,5 +94,10 @@ public class StatusImpl implements STATUS {
       return false;
     StatusImpl other = (StatusImpl) obj;
     return value == other.value;
+  }
+  
+  @Override
+  public String toString() {
+    return "STATUS: 0x" + Integer.toHexString(value);
   }
 }

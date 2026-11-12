@@ -44,10 +44,9 @@ import com.hcl.domino.jna.internal.gc.allocations.JNASchedulesAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesScheduleStruct;
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Container holding multiple schedules
@@ -135,7 +134,7 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 		
 		return LockUtil.lockHandle(hSchedules, (hSchedulesByVal) -> {
 			IntByReference rethObj = new IntByReference();
-			Memory schedulePtrMem = new Memory(Native.POINTER_SIZE);
+			PointerByReference schedulePtrMem = new PointerByReference();
 
 			STATUS result = NotesCAPI.get().SchContainer_GetFirstSchedule(hSchedulesByVal, rethObj, schedulePtrMem);
 			if (result.getMaskedValue() == INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
@@ -147,11 +146,10 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 				return null;
 			}
 			
-			long peer = schedulePtrMem.getLong(0);
-			if (peer==0) {
-				return null;
+			Pointer schedulePtr = schedulePtrMem.getPointer();
+			if(Pointer.nativeValue(schedulePtr) == 0) {
+			  return null;
 			}
-			Pointer schedulePtr = new Pointer(peer);
 			NotesScheduleStruct retpSchedule = NotesScheduleStruct.newInstance(schedulePtr);
 			retpSchedule.read();
 			
@@ -197,20 +195,18 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 		return LockUtil.lockHandle(hSchedules, (hSchedulesByVal) -> {
 			IntByReference rethNextSchedule = new IntByReference();
 	
-			Memory schedulePtrMem = new Memory(Native.POINTER_SIZE);
+			PointerByReference schedulePtrMem = new PointerByReference();
 			STATUS result = NotesCAPI.get().SchContainer_GetNextSchedule(hSchedulesByVal, hCurrSchedule, rethNextSchedule,
 					schedulePtrMem);
 			if (result.getMaskedValue()==INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
 				return null;
 			}
 			result.orElseThrow();
-	
-			long peer = schedulePtrMem.getLong(0);
-			if (peer==0) {
-				return null;
-			}
 			
-			Pointer schedulePtr = new Pointer(peer);
+			Pointer schedulePtr = schedulePtrMem.getPointer();
+			if(Pointer.nativeValue(schedulePtr) == 0) {
+			  return null;
+			}
 			NotesScheduleStruct retpNextSchedule = NotesScheduleStruct.newInstance(schedulePtr);
 			retpNextSchedule.read();
 			

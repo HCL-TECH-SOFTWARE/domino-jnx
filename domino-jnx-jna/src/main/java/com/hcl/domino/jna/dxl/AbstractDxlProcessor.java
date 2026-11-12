@@ -28,7 +28,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.types.WordByReference;
-import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -37,9 +36,9 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Contains logic common between DXL importers and exporters.
@@ -125,13 +124,11 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 			try {
 				int length = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(mem, 0));
 				List<String> result = new ArrayList<>(length);
+                PointerByReference retTextPointer = new PointerByReference();
+                WordByReference retTextLength = new WordByReference();
 				for(int i = 0; i < length; i++) {
-					try(DisposableMemory retTextPointer = new DisposableMemory(Native.POINTER_SIZE)) {
-    					WordByReference retTextLength = new WordByReference();
-    					
-    					NotesCAPI.get().ListGetText(mem, false, word(i), retTextPointer, retTextLength).orElseThrow();
-    					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue()));
-					}
+  					NotesCAPI.get().ListGetText(mem, false, word(i), retTextPointer, retTextLength).orElseThrow();
+  					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getValue(), retTextLength.getValue()));
 				}
 				return result;
 			} finally {
@@ -156,7 +153,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
       }
 
       DHANDLE.ByReference hList = DHANDLE.newInstanceByReference();
-      Memory retpList = new Memory(Native.POINTER_SIZE);
+      PointerByReference retpList = new PointerByReference();
       WordByReference retListSize = new WordByReference();
       NotesCAPI.get().ListAllocate(WordImpl.ZERO, WordImpl.ZERO, 0, hList, retpList, retListSize);
       try {

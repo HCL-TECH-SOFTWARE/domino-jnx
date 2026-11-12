@@ -20,6 +20,7 @@ import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -39,7 +40,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
-
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.TypedConstants;
@@ -60,8 +60,6 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
-import com.hcl.domino.data.structures.CollectionData;
-import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
@@ -70,6 +68,8 @@ import com.hcl.domino.data.Find;
 import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.data.structures.CollectionData;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -893,15 +893,36 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           MessageFormat.format("Could not encode search keys: {0}", Arrays.toString(keys)), e);
     }
 
-    DHANDLE.ByReference retBuffer = DHANDLE.newInstanceByReference();
     IntByReference retSequence = new IntByReference();
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
+    List<byte[]> chunks = new ArrayList<>();
+    int[] size = { 0 };
+    NotesCallbacks.NIFFindByKeyProc proc = ctx -> {
+      byte[] chunkBytes = ctx.SummaryBuffer.getByteArray(0, Short.toUnsignedInt(ctx.wSizeOfChunk));
+      chunks.add(chunkBytes);
+      size[0] += chunkBytes.length;
+      return INotesErrorConstants.NOERROR;
+    };
+
+    DHANDLE.ByReference retHBuffer = DHANDLE.newInstanceByReference();
+    final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
     STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
-      NotesCAPI.get().NIFFindByKeyExtended2(handleByVal, keyBuffer,
-          findFlagsBitMask,
-          returnMaskBitMask, retIndexPos, retNumMatches, retSignalFlags, retBuffer, retSequence)
+      NotesCAPI.get().NIFFindByKeyExtended4(
+        handleByVal,
+        keyBuffer,
+        findFlagsBitMask,
+        returnMaskBitMask,
+        null,
+        retIndexPos,
+        retNumMatches,
+        retSignalFlags,
+        retHBuffer,
+        retSequence,
+        proc,
+        ctx,
+        0)
     );
 
     if (result.getMaskedValue() == ERR_NOT_FOUND) {
@@ -909,26 +930,25 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     }
     result.orElseThrow();
+    
+    // Write the data to a direct ByteBuffer to pass to the native API
+    ByteBuffer buf = ByteBuffer.allocateDirect(size[0]).order(ByteOrder.nativeOrder());
+    chunks.forEach(buf::put);
+    buf.position(0);
 
-    if (retNumMatches.getValue() == 0) {
+    if (retNumMatches.getValue() == 0 || !buf.hasRemaining()) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     } else {
-      if (retBuffer.isNull()) {
-        return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0,
-            retNumMatches.getValue(), retSignalFlags.getWord(), retIndexPos.toPosString(),
-            retSequence.getValue(), null);
-      } else {
-        boolean convertStringsLazily = true;
-        boolean convertNotesTimeDateToCalendar = false;
+      boolean convertStringsLazily = true;
+      boolean convertNotesTimeDateToCalendar = false;
 
-        NotesViewLookupResultData viewData =
-            NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
-                0, retNumMatches.getValue(), returnMask, retSignalFlags.getWord(),
-                retIndexPos.toPosString(), retSequence.getValue(), null,
-                convertStringsLazily, convertNotesTimeDateToCalendar, null);
-        return viewData;
-      }
+      NotesViewLookupResultData viewData =
+          NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, buf,
+              0, retNumMatches.getValue(), returnMask, retSignalFlags.getWord(),
+              retIndexPos.toPosString(), retSequence.getValue(), null,
+              convertStringsLazily, convertNotesTimeDateToCalendar, null);
+      return viewData;
     }
   }
 
@@ -1181,13 +1201,19 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       boolean convertStringsLazily = true;
       boolean convertNotesTimeDateToCalendar = false;
 
-      NotesViewLookupResultData viewData =
-          NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
-              retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
-              retSignalFlags.getWord(), null,
-              indexModifiedSequenceNo, null, convertStringsLazily, convertNotesTimeDateToCalendar,
-              null);
-      return viewData;
+      return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
+        Pointer bufferPtr = Mem.OSLockObject(handleByVal);
+        try {
+          ByteBuffer buf = bufferPtr.getByteBuffer(0, iBufLength).order(ByteOrder.nativeOrder());
+          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(JNADominoCollection.this, buf,
+                  retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask, retSignalFlags.getWord(),
+                  null, indexModifiedSequenceNo, null,
+                  convertStringsLazily, convertNotesTimeDateToCalendar, null);
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+          Mem.OSMemFree(handleByVal).orElseThrow();
+        }
+      });
     }
   }
 
@@ -1300,14 +1326,20 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     } else {
       boolean convertStringsLazily = true;
       boolean convertNotesTimeDateToCalendar = false;
-
-      NotesViewLookupResultData viewData =
-          NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
-              retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
-              retSignalFlags.getWord(), null,
-              indexModifiedSequenceNo, retDiffTimeWrap, convertStringsLazily,
-              convertNotesTimeDateToCalendar, singleColumnLookupName);
-      return viewData;
+      return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
+        Pointer bufferPtr = Mem.OSLockObject(handleByVal);
+        try {
+          ByteBuffer buf = bufferPtr.getByteBuffer(0, iBufLength).order(ByteOrder.nativeOrder());
+          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, buf,
+                  retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
+                  retSignalFlags.getWord(), null,
+                  indexModifiedSequenceNo, retDiffTimeWrap, convertStringsLazily,
+                  convertNotesTimeDateToCalendar, singleColumnLookupName);
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+          Mem.OSMemFree(handleByVal).orElseThrow();
+        }
+      });
     }
   }
 
@@ -2180,9 +2212,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         ctx1.TotalDataInBuffer += wSizeOFChunk & 0xffff;
 
         if (summaryBuffer != null && Pointer.nativeValue(summaryBuffer) != 0) {
+          ByteBuffer buf = summaryBuffer.getByteBuffer(0, wSizeOFChunk & 0xFFFF).order(ByteOrder.nativeOrder());
           NotesViewLookupResultData viewData = NotesLookupResultBufferDecoder
               .decodeCollectionLookupResultBuffer(JNADominoCollection.this,
-                  summaryBuffer,
+                  buf,
                   0, ctx1.EntriesThisChunk & 0xffff, returnMaskToUse, word(0), null,
                   0, null, convertStringsLazily, convertNotesTimeDateToCalendar, null);
 

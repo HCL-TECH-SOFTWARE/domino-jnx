@@ -63,9 +63,9 @@ import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Container to access the ACL of a database
@@ -845,7 +845,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 				
 				try {
 				  WordByReference retTextLength = new WordByReference();
-					Memory retTextPointer = new Memory(Native.POINTER_SIZE);
+					PointerByReference retTextPointer = new PointerByReference();
 					
 					int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pPrivNames, 0));
 					
@@ -853,7 +853,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 					for (int i=0; i<numEntriesAsInt; i++) {
 						NotesCAPI.get().ListGetText(pPrivNames, false, word(i), retTextPointer, retTextLength).orElseThrow();
 						
-						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue());
+						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getValue(), retTextLength.getValue());
 						allRoles.add(currRole);
 					}
 					return allRoles;

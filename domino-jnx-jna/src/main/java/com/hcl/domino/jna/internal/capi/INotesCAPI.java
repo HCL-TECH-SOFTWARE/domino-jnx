@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.ByteBuffer;
 import com.hcl.domino.data.structures.QuepArgVal;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.types.WORD;
@@ -110,8 +111,8 @@ public interface INotesCAPI extends Library {
 			Pointer retServerName,
 			Pointer retFileName);
 
-	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);
-	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);	
+	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, ByteBuffer OutName, WORD OutSize, WORD.ByReference OutLength);
+	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, ByteBuffer OutName, WORD OutSize, WORD.ByReference OutLength);	
 
 	STATUS NSFBuildNamesList(Memory UserName, int dwFlags, DHANDLE.ByReference rethNamesList);
 	
@@ -259,7 +260,7 @@ public interface INotesCAPI extends Library {
 			WORD TextSize,
 			int fPrefixDataType,
 			DHANDLE.ByReference rethList,
-			Memory retpList,
+			PointerByReference retpList,
 			WORD.ByReference retListSize);
 
 	STATUS ListRemoveAllEntries(
@@ -275,7 +276,7 @@ public interface INotesCAPI extends Library {
 			Memory Text,
 			WORD TextSize);
 
-	STATUS SECKFMGetUserName(Memory retUserName);
+	STATUS SECKFMGetUserName(ByteBuffer retUserName);
 
 	STATUS NSFDbOpen(Memory dbName, HANDLE.ByReference dbHandle);
 	STATUS NSFDbClose(HANDLE.ByValue dbHandle);
@@ -328,7 +329,7 @@ public interface INotesCAPI extends Library {
 	STATUS ConvertTextToTIMEDATE(
 			IntlFormatStruct intlFormat,
 			Pointer textFormat,
-			Memory text,
+			PointerByReference text,
 			WORD maxLength,
 			NotesTimeDateStruct retTIMEDATE);
 
@@ -382,7 +383,9 @@ public interface INotesCAPI extends Library {
 	STATUS NSFNoteOpenByUNIDExtended(HANDLE.ByValue hDB, NotesUniversalNoteIdStruct pUNID, int flags, DHANDLE.ByReference rtn); 
 	STATUS NSFNoteCreate(HANDLE.ByValue db_handle, DHANDLE.ByReference note_handle);
 	void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, Pointer retValue);
+    void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, ByteBuffer retValue);
 	void NSFNoteSetInfo(DHANDLE.ByValue hNote, WORD type, Pointer value);
+    void NSFNoteSetInfo(DHANDLE.ByValue hNote, WORD type, ByteBuffer value);
 	STATUS NSFNoteUpdateExtended(DHANDLE.ByValue hNote, int updateFlags);
 	STATUS NSFNoteDeleteExtended(DHANDLE.ByValue hDB, int NoteID, int UpdateFlags);
 	STATUS NSFNoteCopy(
@@ -484,8 +487,14 @@ public interface INotesCAPI extends Library {
 	STATUS ListGetText (Pointer pList,
 			boolean fPrefixDataType,
 			WORD entryNumber,
-			Memory retTextPointer,
+			PointerByReference retTextPointer,
 			WORD.ByReference retTextLength);
+
+    STATUS ListGetText (ByteBuffer pList,
+            boolean fPrefixDataType,
+            WORD entryNumber,
+            PointerByReference retTextPointer,
+            WORD.ByReference retTextLength);
 
 	short ListGetSize(
 			Pointer pList,
@@ -494,7 +503,7 @@ public interface INotesCAPI extends Library {
 	void NSFItemQueryEx(
 			DHANDLE.ByValue note_handle,
 			NotesBlockIdStruct.ByValue item_bid,
-			Memory item_name,
+			ByteBuffer item_name,
 			WORD  return_buf_len,
 			WORD.ByReference name_len_ptr,
 			WORD.ByReference item_flags_ptr,
@@ -612,18 +621,18 @@ public interface INotesCAPI extends Library {
 			Memory item_name,
 			short name_len);
 	
-    short NSFItemConvertToText(
+    WORD NSFItemConvertToText(
         DHANDLE.ByValue note_handle,
         Memory item_name_ptr,
-        Memory text_buf_ptr,
+        ByteBuffer text_buf_ptr,
         WORD text_buf_len,
         char separator);
 
-    short NSFItemConvertValueToText(
+    WORD NSFItemConvertValueToText(
         WORD value_type,
         NotesBlockIdStruct.ByValue value_bid,
         int value_len,
-        Memory text_buf_ptr,
+        ByteBuffer text_buf_ptr,
         WORD text_buf_len,
         char separator);
 
@@ -1456,13 +1465,13 @@ public interface INotesCAPI extends Library {
 	STATUS SchContainer_GetFirstSchedule(
 			DHANDLE.ByValue hCntnr,
 			IntByReference rethObj,
-			Memory retpSchedule);
+			PointerByReference retpSchedule);
 
 	STATUS SchContainer_GetNextSchedule(
 			DHANDLE.ByValue hCntnr,
 			int hCurSchedule,
 			IntByReference rethNextSchedule,
-			Memory retpNextSchedule);
+			PointerByReference retpNextSchedule);
 	
 	STATUS Schedule_ExtractSchedList(
 			DHANDLE.ByValue hCntnr,
@@ -1524,7 +1533,7 @@ public interface INotesCAPI extends Library {
 			IntByReference phRef);
 	STATUS HTMLLockAndFixupReference(
 			int hRef,
-			Memory ppRef);
+			PointerByReference ppRef);
 	STATUS HTMLConvertElement(
 			int hHTML,
 			HANDLE.ByValue hDB,
@@ -2129,7 +2138,7 @@ public interface INotesCAPI extends Library {
 			int itemNum,
 			WORD.ByReference itemType,
 			WORD.ByReference itemLength,
-			Pointer itemName);
+			PointerByReference itemName);
 	
 	STATUS NSFItemDefExtUnlock(
 			NotesItemDefinitionTableExt itemDefTable,

@@ -20,6 +20,7 @@ import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
@@ -139,6 +140,7 @@ import com.hcl.domino.jna.person.JNAPerson;
 import com.hcl.domino.jna.runtime.JNADominoRuntime;
 import com.hcl.domino.jna.security.JNAEcl;
 import com.hcl.domino.jna.utils.JNADominoUtils;
+import com.hcl.domino.jna.utils.ThreadBuffers;
 import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -321,20 +323,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public String getIDUserName() {
-    try(DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME + 1)) {
-
-      NotesCAPI.get().SECKFMGetUserName(retUserNameMem).orElseThrow();
-  
-      int userNameLength = 0;
-      for (int i = 0; i < retUserNameMem.size(); i++) {
-        userNameLength = i;
-        if (retUserNameMem.getByte(i) == 0) {
-          break;
-        }
-      }
-  
-      return NotesStringUtils.fromLMBCS(retUserNameMem, userNameLength);
-    }
+    ByteBuffer retUserNameMem = ThreadBuffers.BUFFER_USERNAME.get();
+    NotesCAPI.get().SECKFMGetUserName(retUserNameMem).orElseThrow();
+    return NotesStringUtils.fromLMBCS(retUserNameMem, -1);
   }
 
   @Override

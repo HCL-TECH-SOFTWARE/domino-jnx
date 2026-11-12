@@ -169,7 +169,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 			return textList==null ? Collections.emptyList() : textList;
 		}
 		case TYPE_NUMBER: {
-			double numVal = ItemDecoder.decodeNumber(valueDataPtr, valueDataLength);
+			double numVal = valueDataPtr.getDouble(0);
 			return Arrays.asList((Object) Double.valueOf(numVal));
 		}
 		case TYPE_NUMBER_RANGE: {

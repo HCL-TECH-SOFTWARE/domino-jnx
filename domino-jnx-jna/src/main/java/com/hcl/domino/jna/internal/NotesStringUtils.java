@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.util.PlatformUtils;
@@ -34,7 +36,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -62,6 +63,9 @@ public class NotesStringUtils {
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	
+	private static Map<Integer, Memory> TINY_CACHE = new ConcurrentHashMap<>();
+    private static Map<Integer, Memory> TINY_CACHE_NULL = new ConcurrentHashMap<>();
+	
 	public static void flushCache() {
 		m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_LinefeedLinebreaks.clear();
@@ -69,6 +73,8 @@ public class NotesStringUtils {
 		m_string2LMBCSCache_NotNullTerminated_NullLinebreaks.clear();
 		m_string2LMBCSCache_NullTerminated_OriginalLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks.clear();
+		TINY_CACHE.clear();
+        TINY_CACHE_NULL.clear();
 	}
 	
 	/**
@@ -276,14 +282,14 @@ public class NotesStringUtils {
 		
 		// If it's compatible ASCII, return without the native call
         if(isPureAscii(data)) {
-          return new String(data, StandardCharsets.UTF_8);
+          return new String(data, StandardCharsets.US_ASCII);
         }
 		
 		int startOffset = 0;
 		
 		List<String> lines = new ArrayList<>();
 		
-		INotesCAPI api = NotesCAPI.get();
+		INotesCAPI api = NotesCAPI.get(true);
 		
 		//output buffer shared across loop runs for each line
 		DisposableMemory outBufUTF8 = null;
@@ -445,17 +451,28 @@ public class NotesStringUtils {
 		}
 	}
 	
-	public static String fromLMBCS(ByteBuffer buf, int offset) {
-		// Check if it's a native pointer and use it directly
-		try {
-			Pointer ptr = Native.getDirectBufferPointer(buf);
-			return fromLMBCS(ptr.share(offset), buf.remaining()-offset);
-		} catch(IllegalArgumentException e) {
-			byte[] data = new byte[buf.remaining()-offset];
-			buf.get(data);
-			return fromLMBCS(data);
-		}
-	}
+    public static String fromLMBCS(ByteBuffer buf, int textLen) {
+      if(textLen == 0) {
+        return "";
+      }
+      int pos = buf.position();
+      int len = textLen > -1 ? textLen : buf.remaining();
+      byte[] data = new byte[len];
+      buf.get(data);
+      buf.position(pos);
+      
+      // If -1 was requested, chop it down to the first null
+      if(textLen == -1) {
+        for(int i = 0; i < data.length; i++) {
+          if(data[i] == 0) {
+            data = Arrays.copyOf(data, i);
+            break;
+          }
+        }
+      }
+      
+      return fromLMBCS(data);
+    }
 	
 	/**
 	 * Converts a string to LMBCS format
@@ -562,6 +579,25 @@ public class NotesStringUtils {
 			else {
 				return null;
 			}
+		}
+		
+		// skip cache and native calls for tiny ASCII
+		if(inStr.length() < 64) {
+		  byte[] data = inStr.getBytes(StandardCharsets.UTF_8);
+		  if(isPureAscii(data)) {
+		    int cacheKey = Arrays.hashCode(data);
+		    Map<Integer, Memory> cache = addNull ? TINY_CACHE_NULL : TINY_CACHE;
+		    Memory mem = cache.get(cacheKey);
+		    if(mem == null) {
+		      mem = new Memory(data.length + (addNull ? 1 : 0));
+              mem.write(0, data, 0, data.length);
+              if (addNull) {
+                mem.setByte(data.length, (byte) 0);
+              }
+              cache.put(cacheKey, mem);
+		    }
+		    return mem;
+		  }
 		}
 		
 		LRUStringLMBCSCache cacheToUse;

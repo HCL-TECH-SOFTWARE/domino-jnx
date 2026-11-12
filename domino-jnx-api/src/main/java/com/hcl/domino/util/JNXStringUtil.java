@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -422,67 +423,73 @@ public class JNXStringUtil {
    * @since 1.48.0
    */
   public static String toUNID(long innardsFile, long innardsNote) {
-    StringBuilder result = new StringBuilder();
+    byte[] result = new byte[32];
     
     String file = Long.toHexString(innardsFile);
-    for(int i = 0; i < 16 - file.length(); i++) {
-      result.append('0');
+    int offset = 0;
+    int i;
+    for(i = 0; i < 16 - file.length(); i++) {
+      result[i] = '0';
     }
+    offset = i;
     for(char c : file.toCharArray()) {
       switch(c) {
         case 'a':
-          result.append('A');
+          result[offset] = 'A';
           break;
         case 'b':
-          result.append('B');
+          result[offset] = 'B';
           break;
         case 'c':
-          result.append('C');
+          result[offset] = 'C';
           break;
         case 'd':
-          result.append('D');
+          result[offset] = 'D';
           break;
         case 'e':
-          result.append('E');
+          result[offset] = 'E';
           break;
         case 'f':
-          result.append('F');
+          result[offset] = 'F';
           break;
         default:
-          result.append(c);
+          result[offset] = (byte)c;
       }
+      offset++;
     }
     
     String note = Long.toHexString(innardsNote);
-    for(int i = 0; i < 16 - note.length(); i++) {
-      result.append('0');
+    for(i = 0; i < 16 - note.length(); i++) {
+      result[offset+i] = '0';
     }
+    offset += i;
     for(char c : note.toCharArray()) {
       switch(c) {
         case 'a':
-          result.append('A');
+          result[offset] = 'A';
           break;
         case 'b':
-          result.append('B');
+          result[offset] = 'B';
           break;
         case 'c':
-          result.append('C');
+          result[offset] = 'C';
           break;
         case 'd':
-          result.append('D');
+          result[offset] = 'D';
           break;
         case 'e':
-          result.append('E');
+          result[offset] = 'E';
           break;
         case 'f':
-          result.append('F');
+          result[offset] = 'F';
           break;
         default:
-          result.append(c);
+          result[offset] = (byte)c;
       }
+      offset++;
     }
     
-    return result.toString();
+    return new String(result, StandardCharsets.US_ASCII);
   }
   
   public static long parseHex(String s, int start, int end) {
