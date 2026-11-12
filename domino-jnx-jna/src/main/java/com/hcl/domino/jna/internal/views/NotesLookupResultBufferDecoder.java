@@ -469,7 +469,7 @@ public class NotesLookupResultBufferDecoder {
 				continue;
 			}
 			else {
-				itemDataTypes[j] = bufferPtr.getShort(bufferPos) & 0xffff;
+				itemDataTypes[j] = Short.toUnsignedInt(bufferPtr.getShort(bufferPos));
 				
 				//add data type size to position
 				bufferPos += 2;
