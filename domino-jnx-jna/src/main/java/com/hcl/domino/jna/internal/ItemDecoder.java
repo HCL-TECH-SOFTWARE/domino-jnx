@@ -91,42 +91,42 @@ public class ItemDecoder {
         }
     }
 	
-	public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily) {
-		//read a text list item value
-		int listCountAsInt = ptr.getShort(0) & 0xffff;
-		
-		List<Object> listValues = new ArrayList<>(listCountAsInt);
-		
-		  WordByReference retTextLength = new WordByReference();
-	        PointerByReference retTextPointer = new PointerByReference();
-    		
-    		for (int i=0; i<listCountAsInt; i++) {
-    			NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength).orElseThrow();
-    			
-    			//retTextPointer[0] points to the list entry text
-  			Pointer pointerToTextInMem = retTextPointer.getValue();
-  			int retTextLengthAsInt = retTextLength.getValue();
-  			
-  			if (retTextLengthAsInt==0) {
-  				listValues.add(""); //$NON-NLS-1$
-  			}
-  			else {
-  				if (convertStringsLazily) {
-  					byte[] stringDataArr = new byte[retTextLengthAsInt];
-  					pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
-  
-  					LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-  					listValues.add(lmbcsString);
-  				}
-  				else {
-  					String currListEntry = NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
-  					listValues.add(currListEntry);
-  				}
-  			}
-  		}
-		
-		return listValues;
-	}
+    public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily) {
+      // read a text list item value
+      int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
+
+      List<Object> listValues = new ArrayList<>(listCountAsInt);
+
+      WordByReference retTextLength = ThreadBuffers.WORD_BY_REFERENCE.get();
+      PointerByReference retTextPointer = ThreadBuffers.POINTER_BY_REFERENCE.get();
+
+      for (int i = 0; i < listCountAsInt; i++) {
+        NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength)
+            .orElseThrow();
+
+        // retTextPointer[0] points to the list entry text
+        Pointer pointerToTextInMem = retTextPointer.getValue();
+        int retTextLengthAsInt = retTextLength.getValue();
+
+        if (retTextLengthAsInt == 0) {
+          listValues.add(""); //$NON-NLS-1$
+        } else {
+          if (convertStringsLazily) {
+            byte[] stringDataArr = new byte[retTextLengthAsInt];
+            pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
+
+            LMBCSString lmbcsString = new LMBCSString(stringDataArr);
+            listValues.add(lmbcsString);
+          } else {
+            String currListEntry =
+                NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
+            listValues.add(currListEntry);
+          }
+        }
+      }
+
+      return listValues;
+    }
 
     public static List<Object> decodeTextListValue(ByteBuffer ptr, boolean convertStringsLazily) {
       // read a text list item value
