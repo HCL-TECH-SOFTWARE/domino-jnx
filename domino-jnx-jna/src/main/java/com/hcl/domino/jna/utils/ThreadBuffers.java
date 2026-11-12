@@ -2,7 +2,7 @@ package com.hcl.domino.jna.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import com.hcl.domino.commons.data.types.WordByReference;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.ptr.PointerByReference;
 

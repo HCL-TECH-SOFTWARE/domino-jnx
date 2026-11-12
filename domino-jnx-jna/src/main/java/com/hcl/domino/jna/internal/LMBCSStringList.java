@@ -26,13 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoProcess;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.LMBCSStringListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;

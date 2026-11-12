@@ -22,7 +22,6 @@ import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
 
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
-import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -31,6 +30,7 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADominoDateTime;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;

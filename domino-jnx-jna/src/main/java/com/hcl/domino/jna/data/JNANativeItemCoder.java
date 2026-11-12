@@ -25,10 +25,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
