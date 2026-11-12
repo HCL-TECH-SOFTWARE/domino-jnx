@@ -23,17 +23,28 @@ import java.io.UncheckedIOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 
 public enum DominoUtils {
   ;
+  
+  private static final Set<DocumentClass> DOCCLASS_NONE = Collections.unmodifiableSet(EnumSet.of(DocumentClass.NONE));
+  private static final Set<DocumentClass> DOCCLASS_DATA = Collections.unmodifiableSet(EnumSet.of(DocumentClass.DATA, DocumentClass.DOCUMENT));
+  private static final Set<DocumentClass> DOCCLASS_FORM = Collections.unmodifiableSet(EnumSet.of(DocumentClass.FORM));
+  private static final Set<DocumentClass> DOCCLASS_VIEW = Collections.unmodifiableSet(EnumSet.of(DocumentClass.VIEW));
 
   /**
    * Checkes the provided boolean-type Java property and environment value,
@@ -285,6 +296,16 @@ public enum DominoUtils {
       return builder.parse(is);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
+    }
+  }
+  
+  public static Set<DocumentClass> getDocumentClasses(int noteClassMask) {
+    switch(noteClassMask) {
+      case 0: return DOCCLASS_NONE;
+      case NotesConstants.NOTE_CLASS_DATA: return DOCCLASS_DATA;
+      case NotesConstants.NOTE_CLASS_FORM: return DOCCLASS_FORM;
+      case NotesConstants.NOTE_CLASS_VIEW: return DOCCLASS_VIEW;
+      default: return DominoEnumUtil.valuesOf(DocumentClass.class, noteClassMask);
     }
   }
 }

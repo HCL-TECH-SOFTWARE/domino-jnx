@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import com.hcl.domino.commons.data.AbstractCollectionEntry;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.views.ReadMask;
@@ -47,7 +46,6 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jna.internal.LMBCSString;
-import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
@@ -397,8 +395,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	@Override
 	public Optional<DocumentClass> getDocumentClass() {
 		return Optional.ofNullable(m_noteClass)
-			.map(c -> DominoEnumUtil.valueOf(DocumentClass.class, c))
-			.orElse(Optional.empty());
+			.map(DocumentClass::toNoteClass);
 	}
 
 	/**

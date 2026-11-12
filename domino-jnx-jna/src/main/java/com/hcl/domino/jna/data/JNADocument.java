@@ -86,6 +86,7 @@ import com.hcl.domino.commons.mime.NotesMIMEPart.PartType;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.structures.DefaultOriginatorID;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -196,9 +197,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     DefaultUserData.class
   ).collect(Collectors.toSet());
   private static final Map<Class<?>, Optional<DocumentValueConverter>> CONVERTER_CACHE = new ConcurrentHashMap<>();
-  
-  private static final Set<DocumentClass> DOCCLASS_NONE = Collections.unmodifiableSet(EnumSet.of(DocumentClass.NONE));
-  private static final Set<DocumentClass> DOCCLASS_DATA = Collections.unmodifiableSet(EnumSet.of(DocumentClass.DATA, DocumentClass.DOCUMENT));
   
   private Set<DocumentClass> m_documentClass;
   private int noteId;
@@ -2811,20 +2809,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         return null;
       });
       int noteClassMask = retNoteClass.getShort(0);
-
-      final Set<DocumentClass> docClass;
-      switch(noteClassMask) {
-        case 0:
-          docClass = DOCCLASS_NONE;
-          break;
-        case NotesConstants.NOTE_CLASS_DATA:
-          docClass = DOCCLASS_DATA;
-          break;
-        default:
-          docClass = DominoEnumUtil.valuesOf(DocumentClass.class, noteClassMask);
-      }
-
-      m_documentClass = docClass;
+      m_documentClass = DominoUtils.getDocumentClasses(noteClassMask);
     }
     return m_documentClass;
   }

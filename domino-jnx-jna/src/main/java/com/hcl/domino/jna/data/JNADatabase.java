@@ -19,8 +19,6 @@ package com.hcl.domino.jna.data;
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,8 +53,8 @@ import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AccessInfoImpl;
 import com.hcl.domino.commons.data.BuildVersionInfoImpl;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
-import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.DefaultDominoOriginatorId;
+import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.TypedConstants;
@@ -767,13 +764,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	 * @return unid
 	 */
 	private static String toUNID(Memory buf) {
-		Formatter formatter = new Formatter();
-		ByteBuffer data = buf.getByteBuffer(0, buf.size()).order(ByteOrder.LITTLE_ENDIAN);
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		String unid = formatter.toString().toUpperCase();
-		formatter.close();
-		return unid;
+	  long[] innards = buf.getLongArray(0, 2);
+	  return JNXStringUtil.toUNID(innards[0], innards[1]);
 	}
 	
 	@Override
