@@ -28,7 +28,6 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
-import com.hcl.domino.commons.util.ThreadBuffers;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
@@ -37,6 +36,7 @@ import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
 import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
+import com.hcl.domino.jna.utils.ThreadBuffers;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Pointer;
@@ -44,9 +44,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 public class ItemDecoder {
   
-  private static final ThreadLocal<PointerByReference> POINTER_BY_REFERENCE = ThreadLocal.withInitial(PointerByReference::new);
-
-	public static double decodeNumber(Pointer ptr, int valueLength) {
+  public static double decodeNumber(Pointer ptr, int valueLength) {
 		double numVal = ptr.getDouble(0);
 		return numVal;
 	}
@@ -137,7 +135,7 @@ public class ItemDecoder {
       List<Object> listValues = new ArrayList<>(listCountAsInt);
 
       WordByReference retTextLength = ThreadBuffers.WORD_BY_REFERENCE.get();
-      PointerByReference retTextPointer = POINTER_BY_REFERENCE.get();
+      PointerByReference retTextPointer = ThreadBuffers.POINTER_BY_REFERENCE.get();
 
       for (int i = 0; i < listCountAsInt; i++) {
         NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength)

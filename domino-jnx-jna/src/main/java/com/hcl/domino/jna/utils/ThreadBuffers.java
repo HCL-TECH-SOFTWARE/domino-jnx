@@ -1,9 +1,10 @@
-package com.hcl.domino.commons.util;
+package com.hcl.domino.jna.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.misc.NotesConstants;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Contains thread-local buffers of various common sizes to allow
@@ -23,4 +24,6 @@ public interface ThreadBuffers {
   ThreadLocal<ByteBuffer> BUFFER_SIXTY_DB = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(60 * 1024).order(ByteOrder.nativeOrder()));
   
   ThreadLocal<WordByReference> WORD_BY_REFERENCE = ThreadLocal.withInitial(WordByReference::new);
+  
+  ThreadLocal<PointerByReference> POINTER_BY_REFERENCE = ThreadLocal.withInitial(PointerByReference::new);
 }
