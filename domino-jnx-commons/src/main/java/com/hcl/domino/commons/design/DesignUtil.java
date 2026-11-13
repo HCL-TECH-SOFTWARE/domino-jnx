@@ -148,6 +148,7 @@ import com.hcl.domino.richtext.records.CDEventEntry.ActionType;
 import com.hcl.domino.richtext.records.CDEventEntry.Platform;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * @since 1.0.18
@@ -701,13 +702,7 @@ public enum DesignUtil {
     }
     final List<String> result = new ArrayList<>();
     for (final String val : values) {
-      int start = 0;
-      int end;
-      while((end = val.indexOf('|', start)) != -1) {
-        result.add(val.substring(start, end));
-        start = end+1;
-      }
-      result.add(val.substring(start));
+      JNXStringUtil.splitString(val, '|', true, result);
     }
     return result;
   }

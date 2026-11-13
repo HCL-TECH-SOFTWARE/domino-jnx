@@ -66,7 +66,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
@@ -2744,28 +2743,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			if (searchOptionsToUse.contains(FTQuery.RETURN_HIGHLIGHT_STRINGS)) {
 				//decode highlights
 				if (!rethStrings.isNull()) {
-					highlightStrings = LockUtil.lockHandle(rethStrings, (rethStringsByVal) -> {
+				  String strHighlights = LockUtil.lockHandle(rethStrings, (rethStringsByVal) -> {
 						if (rethStringsByVal!=null) {
 							Pointer ptr = Mem.OSLockObject(rethStringsByVal);
 							try {
 								short varLength = ptr.getShort(0);
-								ptr = ptr.share(2);
-								short flags = ptr.getShort(0);
-								ptr = ptr.share(2);
 
-								String strHighlights = NotesStringUtils.fromLMBCS(ptr, varLength & 0xffff);
-
-								List<String> strings = new ArrayList<>();
-								
-								StringTokenizerExt st = new StringTokenizerExt(strHighlights, "\n"); //$NON-NLS-1$
-								while (st.hasMoreTokens()) {
-									String currToken = st.nextToken();
-									if (!JNXStringUtil.isEmpty(currToken)) {
-										strings.add(currToken);
-									}
-								}
-								
-								return strings;
+								return NotesStringUtils.fromLMBCS(ptr, Short.toUnsignedInt(varLength));
 							}
 							finally {
 								Mem.OSUnlockObject(rethStringsByVal);
@@ -2774,6 +2758,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 						}
 						return null;
 					});
+                    highlightStrings = new ArrayList<>();
+                    JNXStringUtil.splitString(strHighlights, '\n', false, highlightStrings);
 				}
 			}
 			

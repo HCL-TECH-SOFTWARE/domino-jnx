@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +35,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DominoDateTime;
@@ -52,6 +52,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNADirectorySearchQueryAllocat
 import com.hcl.domino.jna.internal.search.NotesSearch;
 import com.hcl.domino.jna.internal.search.NotesSearch.JNASearchMatch;
 import com.hcl.domino.misc.Loop;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Implementation of a directory search query for the Domino data directories.
@@ -230,13 +231,14 @@ public class JNADirectorySearchQuery extends BaseJNAAPIObject<JNADirectorySearch
 			  // #1Database template\n
 			  // #2Database inherit template
 			  String infoStr = ((String) infoObj).replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
-			  StringTokenizerExt st = new StringTokenizerExt(infoStr, "\n"); //$NON-NLS-1$
-			  if (st.hasMoreTokens()) {
-				  dbTitle = st.nextToken();
+			  List<String> st = new ArrayList<>();
+			  JNXStringUtil.splitString(infoStr, '\n', true, st);
+			  if(!st.isEmpty()) {
+				  dbTitle = st.get(0);
 
 				  boolean secondLine = true;
-				  while (st.hasMoreTokens()) {
-					  String currLine = st.nextToken();
+				  for(int i = 1; i < st.size(); i++) {
+					  String currLine = st.get(i);
 
 					  if (secondLine) {
 						  secondLine = false;

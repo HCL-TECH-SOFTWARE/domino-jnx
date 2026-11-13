@@ -502,4 +502,31 @@ public class JNXStringUtil {
     }
     return result;
   }
+  
+  /**
+   * Splits a string on the provided character delimiter, allowing for empty
+   * components.
+   * 
+   * @param val the string to split
+   * @param delim the character to split on
+   * @param allowEmpty whether to include empty strings in the result
+   * @param result the destination collection to write values to
+   * @since 1.57.0
+   */
+  public static void splitString(final String val, final char delim, final boolean allowEmpty, final Collection<String> result) {
+    if(val == null || val.isEmpty()) {
+      result.add("");
+      return;
+    }
+    int start = 0;
+    int end;
+    while((end = val.indexOf(delim, start)) != -1) {
+      String sub = val.substring(start, end);
+      if(allowEmpty || !sub.isEmpty()) {
+        result.add(sub);
+      }
+      start = end+1;
+    }
+    result.add(val.substring(start));
+  }
 }

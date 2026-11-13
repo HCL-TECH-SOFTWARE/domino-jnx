@@ -21,20 +21,18 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.design.DesignUtil;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.data.Agent;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
@@ -116,22 +114,14 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 	@Override
 	public List<String> getAliases() {
 		if (m_agentNameAndAliases==null) {
-			m_agentNameAndAliases = getAgentDoc().get("$Title", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			m_agentNameAndAliases = getAgentDoc().getAsText("$Title", '|'); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		int iPos = m_agentNameAndAliases.indexOf('|');
-		if (iPos==-1) {
-			return Collections.emptyList();
+		List<String> titles = DesignUtil.toTitlesList(Collections.singletonList(m_agentNameAndAliases));
+		if(titles.size() < 2) {
+		  return Collections.emptyList();
+		} else {
+		  return titles.subList(2, titles.size());
 		}
-		List<String> aliases = new ArrayList<>();
-		
-		StringTokenizerExt st = new StringTokenizerExt(m_agentNameAndAliases.substring(iPos+1), "|"); //$NON-NLS-1$
-		while (st.hasMoreTokens()) {
-			String currToken = st.nextToken().trim();
-			if (!JNXStringUtil.isEmpty(currToken)) {
-				aliases.add(currToken);
-			}
-		}
-		return aliases;
 	}
 
 	@Override

@@ -25,7 +25,6 @@ import java.util.Optional;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -109,20 +108,14 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 	public List<String> getDropItems() {
 		checkDisposed();
 		
-		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			List<String> itemNames = new ArrayList<>();
-			
+		String itemNamesConc = getAllocations().lockAndGetSettingsPointer((ptr) -> {
 			Pointer dropItemsPtr = NotesCAPI.get().MMGetDropItems(ptr);
-			String itemNamesConc = NotesStringUtils.fromLMBCS(dropItemsPtr, -1);
-			StringTokenizerExt st = new StringTokenizerExt(itemNamesConc, ","); //$NON-NLS-1$
-			while (st.hasMoreTokens()) {
-				String currToken = st.nextToken();
-				if (!JNXStringUtil.isEmpty(currToken)) {
-					itemNames.add(currToken);
-				}
-			}
-			return itemNames;
+			return NotesStringUtils.fromLMBCS(dropItemsPtr, -1);
 		});
+
+        List<String> itemNames = new ArrayList<>();
+        JNXStringUtil.splitString(itemNamesConc, ',', false, itemNames);
+        return itemNames;
 	}
 	
 	@Override
@@ -210,20 +203,14 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 	public List<String> getAddItems() {
 		checkDisposed();
 		
-		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			List<String> itemNames = new ArrayList<>();
-			
+		String itemNamesConc = getAllocations().lockAndGetSettingsPointer((ptr) -> {
 			Pointer addItemsPtr = NotesCAPI.get().MMGetAddItems(ptr);
-			String itemNamesConc = NotesStringUtils.fromLMBCS(addItemsPtr, -1);
-			StringTokenizerExt st = new StringTokenizerExt(itemNamesConc, ","); //$NON-NLS-1$
-			while (st.hasMoreTokens()) {
-				String currToken = st.nextToken();
-				if (!JNXStringUtil.isEmpty(currToken)) {
-					itemNames.add(currToken);
-				}
-			}
-			return itemNames;
+			return NotesStringUtils.fromLMBCS(addItemsPtr, -1);
 		});
+		
+		List<String> st = new ArrayList<>();
+		JNXStringUtil.splitString(itemNamesConc, ',', false, st);
+		return st;
 	}
 	
 	@Override

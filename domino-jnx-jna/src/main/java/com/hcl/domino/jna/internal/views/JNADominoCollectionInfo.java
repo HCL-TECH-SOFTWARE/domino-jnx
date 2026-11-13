@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DominoCollection;
@@ -31,6 +30,7 @@ import com.hcl.domino.jna.data.JNACollectionEntry;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADominoCollection;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * View and folder information read from the database design collection
@@ -55,12 +55,12 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 
 	public void initFromDesignCollectionEntry(JNACollectionEntry entry) {
 		String titleAndAliases = entry.get("$title", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
-		StringTokenizerExt st = new StringTokenizerExt(titleAndAliases, "|"); //$NON-NLS-1$
-		m_title = st.nextToken();
+		List<String> titles = new ArrayList<>();
+		JNXStringUtil.splitString(titleAndAliases, '|', true, titles);
+		m_title = titles.get(0);
 		
-		m_aliases = new ArrayList<>();
-		while (st.hasMoreTokens()) {
-			m_aliases.add(st.nextToken());
+		if(titles.size() > 1) {
+		  m_aliases = titles.subList(1, titles.size());
 		}
 		
 		m_flags = entry.get(NotesConstants.DESIGN_FLAGS, String.class, ""); //$NON-NLS-1$

@@ -43,6 +43,7 @@ import java.util.function.BiConsumer;
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.TypedConstants;
+import com.hcl.domino.commons.design.DesignUtil;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
@@ -51,7 +52,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -407,20 +407,14 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
   private void decodeNameAndAliases() {
     JNADocument viewNote = getViewNote();
 
-    List<String> aliases = new ArrayList<>();
-    String name = ""; //$NON-NLS-1$
-
-    String title = viewNote.get("$TITLE", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
-    StringTokenizerExt st = new StringTokenizerExt(title, "|"); //$NON-NLS-1$
-    if (st.hasMoreTokens()) {
-      name = st.nextToken();
-
-      while (st.hasMoreTokens()) {
-        aliases.add(st.nextToken());
-      }
+    String title = viewNote.getAsText("$TITLE", '|'); //$NON-NLS-1$ //$NON-NLS-2$
+    List<String> titles = DesignUtil.toTitlesList(Collections.singletonList(title));
+    m_name = titles.get(0);
+    if(titles.size() > 1) {
+      m_aliases = titles.subList(1, titles.size());
+    } else {
+      m_aliases = Collections.emptyList();
     }
-    m_name = name;
-    m_aliases = Collections.unmodifiableList(aliases);
   }
 
   @Override

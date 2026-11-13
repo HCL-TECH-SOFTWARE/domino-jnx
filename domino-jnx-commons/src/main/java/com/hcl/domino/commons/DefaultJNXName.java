@@ -21,13 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hcl.domino.Name;
-import com.hcl.domino.commons.util.ReverseStringTokenizer;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.naming.Names;
 import com.hcl.domino.util.JNXStringUtil;
 
 public class DefaultJNXName implements Name {
   private final String m_nameCanonical;
+  private List<String> parts;
 
   public DefaultJNXName(final String name) {
     this.m_nameCanonical = Names.toCanonical(name);
@@ -50,9 +49,7 @@ public class DefaultJNXName implements Name {
 
   @Override
   public String getCountry() {
-    final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
-    while (st.hasMoreTokens()) {
-      final String currToken = st.nextToken();
+    for(final String currToken : parts()) {
       if (JNXStringUtil.startsWithIgnoreCase(currToken, "c=")) { //$NON-NLS-1$
         return currToken.substring(2);
       }
@@ -62,9 +59,7 @@ public class DefaultJNXName implements Name {
 
   @Override
   public String getOrganisation() {
-    final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
-    while (st.hasMoreTokens()) {
-      final String currToken = st.nextToken();
+    for(final String currToken : parts()) {
       if (JNXStringUtil.startsWithIgnoreCase(currToken, "o=")) { //$NON-NLS-1$
         return currToken.substring(2);
       }
@@ -73,10 +68,10 @@ public class DefaultJNXName implements Name {
   }
 
   private String getOrgUnit(final String name, final int idx) {
-    final ReverseStringTokenizer st = new ReverseStringTokenizer(this.m_nameCanonical, "/"); //$NON-NLS-1$
     int currIdx = 0;
-    while (st.hasMoreTokens()) {
-      final String currToken = st.nextToken();
+    List<String> parts = parts();
+    for(int i = parts.size()-1; i >= 0; i--) {
+      final String currToken = parts.get(i);
       if (JNXStringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
         currIdx++;
         if (currIdx == idx) {
@@ -111,10 +106,9 @@ public class DefaultJNXName implements Name {
   public List<String> getOrgUnits() {
     final List<String> orgUnits = new ArrayList<>();
 
-    final ReverseStringTokenizer st = new ReverseStringTokenizer(this.m_nameCanonical, "/"); //$NON-NLS-1$
-
-    while (st.hasMoreTokens()) {
-      final String currToken = st.nextToken();
+    List<String> parts = parts();
+    for(int i = parts.size()-1; i >= 0; i--) {
+      final String currToken = parts.get(i);
       if (JNXStringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
         orgUnits.add(currToken.substring(3));
       }
@@ -126,6 +120,15 @@ public class DefaultJNXName implements Name {
   @Override
   public String toString() {
     return MessageFormat.format("JNAName [name={0}]", this.m_nameCanonical); //$NON-NLS-1$
+  }
+  
+  private List<String> parts() {
+    if(this.parts == null) {
+      List<String> parts = new ArrayList<>();
+      JNXStringUtil.splitString(m_nameCanonical, '/', true, parts);
+      this.parts = parts;
+    }
+    return parts;
   }
 
 }

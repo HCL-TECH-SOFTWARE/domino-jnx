@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,6 @@ import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.PlatformUtils;
-import com.hcl.domino.commons.util.ReverseStringTokenizer;
-import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.jna.data.JNAUserNamesList;
 import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -185,10 +184,10 @@ public class NotesNamingUtils {
 		String abbrName = m_nameAbbrCache.get(cacheKey);
 		
 		if (abbrName==null) {
-			StringTokenizerExt st=new StringTokenizerExt(name, "/"); //$NON-NLS-1$
+		  List<String> st = new ArrayList<>();
+		  JNXStringUtil.splitString(name, '/', true, st);
 			StringBuilder sb=new StringBuilder(name.length());
-			while (st.hasMoreTokens()) {
-				String currToken=st.nextToken();
+			for(final String currToken : st) {
 				int iPos = currToken.indexOf("="); //$NON-NLS-1$
 				if (sb.length()>0) {
 					sb.append("/"); //$NON-NLS-1$
@@ -300,19 +299,24 @@ public class NotesNamingUtils {
 		String nameAbbr = toAbbreviatedName(name);
 		String wildcardAbbr = toAbbreviatedName(wildcard);
 		
-		ReverseStringTokenizer nameSt = new ReverseStringTokenizer(nameAbbr, "/"); //$NON-NLS-1$
-		ReverseStringTokenizer wildcardSt = new ReverseStringTokenizer(wildcardAbbr, "/"); //$NON-NLS-1$
+		List<String> nameSt = new ArrayList<>();
+		JNXStringUtil.splitString(nameAbbr, '/', true, nameSt);
+		Collections.reverse(nameSt);
 		
-		while (nameSt.hasMoreTokens()) {
-			String currNameToken = nameSt.nextToken();
+		List<String> wildcards = new ArrayList<>();
+		JNXStringUtil.splitString(wildcardAbbr, '/', true, wildcards);
+		Collections.reverse(wildcards);
+		Iterator<String> wildcardSt = wildcards.iterator();
+		
+		for(final String currNameToken : nameSt) {
 			
-			if (!wildcardSt.hasMoreTokens()) {
+			if (!wildcardSt.hasNext()) {
 				return false;
 			}
 			else {
-				String currWildcardToken = wildcardSt.nextToken();
+				String currWildcardToken = wildcardSt.next();
 				if ("*".equals(currWildcardToken)) { //$NON-NLS-1$
-					if (wildcardSt.hasMoreTokens()) {
+					if (wildcardSt.hasNext()) {
 						throw new IllegalArgumentException("The wildcard * can only be the leftmost part of the wildcard pattern");
 					}
 					
