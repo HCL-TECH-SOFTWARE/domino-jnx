@@ -230,13 +230,12 @@ public class NotesStringUtils {
 	 * @return string list
 	 */
 	public static List<String> fromLMBCSStringList(Pointer inPtr, int numEntries) {
-		List<String> stringList = new ArrayList<>();
+		List<String> stringList = new ArrayList<>(numEntries);
 		
 		Pointer ptrStartOfString = inPtr;
-		
+
+        int currStringOffset = 0;
 		for (int i=0; i<numEntries; i++) {
-			int currStringOffset = 0;
-			
 			while(true) {
 				byte b = ptrStartOfString.getByte(currStringOffset);
 				currStringOffset++;
@@ -248,12 +247,11 @@ public class NotesStringUtils {
 			String currString = fromLMBCS(ptrStartOfString, currStringOffset-1);
 			stringList.add(currString);
 			
-			if ((i+1)<numEntries) {
-				ptrStartOfString = ptrStartOfString.share(currStringOffset);
-			}
-			else {
-				break;
-			}
+            if ((i + 1) < numEntries) {
+              ptrStartOfString = ptrStartOfString.share(currStringOffset);
+            } else {
+              break;
+            }
 		}
 		return stringList;
 	}
