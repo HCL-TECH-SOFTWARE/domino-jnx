@@ -173,7 +173,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@SuppressWarnings("unused")
 	private Set<OpenDatabase> m_options;
 	private boolean m_openAsIdUser;
-	private List<String> m_namesStringList;
+	private String[] m_namesStringList;
 	private EnumSet<Privileges> m_namesListPrivileges;
 	private String[] m_paths;
 	private DbMode m_dbMode;
@@ -233,7 +233,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			m_openAsIdUser = false;
 		}
 		
-		m_namesStringList = namesList==null ? null : namesList.toList();
+		m_namesStringList = namesList==null ? null : namesList.toArray();
 		m_namesListPrivileges = namesList==null ? null : NotesNamingUtils.getPrivileges(namesList);
 
 		setInitialized();
@@ -311,7 +311,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				}
 			}
 			
-			m_namesStringList = namesList==null ? null : namesList.toList();
+			m_namesStringList = namesList==null ? null : namesList.toArray();
 			m_namesListPrivileges = namesList==null ? null : NotesNamingUtils.getPrivileges(namesList);
 
 			JNADatabaseAllocations allocations = getAllocations();

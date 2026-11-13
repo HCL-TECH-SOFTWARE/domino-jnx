@@ -229,8 +229,8 @@ public class NotesStringUtils {
 	 * @param numEntries number of null terminated strings
 	 * @return string list
 	 */
-	public static List<String> fromLMBCSStringList(Pointer inPtr, int numEntries) {
-		List<String> stringList = new ArrayList<>(numEntries);
+	public static String[] fromLMBCSStringList(Pointer inPtr, int numEntries) {
+		String[] stringList = new String[numEntries];
 		
 		Pointer ptrStartOfString = inPtr;
 
@@ -245,7 +245,7 @@ public class NotesStringUtils {
 			}
 			
 			String currString = fromLMBCS(ptrStartOfString, currStringOffset-1);
-			stringList.add(currString);
+			stringList[i] = currString;
 			
             if ((i + 1) < numEntries) {
               ptrStartOfString = ptrStartOfString.share(currStringOffset);

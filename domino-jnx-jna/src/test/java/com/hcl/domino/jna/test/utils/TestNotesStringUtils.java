@@ -31,7 +31,7 @@ public class TestNotesStringUtils extends AbstractJNARuntimeTest {
   public void testStringListRoundTrip() {
     final List<String> strings = Arrays.asList("foo", "bar", "baz");
     final Memory mem = NotesStringUtils.toLMBCS(strings);
-    final List<String> out = NotesStringUtils.fromLMBCSStringList(mem, strings.size());
+    final List<String> out = Arrays.asList(NotesStringUtils.fromLMBCSStringList(mem, strings.size()));
     Assertions.assertEquals(strings, out);
   }
 

@@ -39,5 +39,13 @@ public interface UserNamesList extends Iterable<String>, IAdaptable {
    * @return names
    */
   List<String> toList();
+  
+  /**
+   * Returns the names contained in this names list.
+   * 
+   * @return a new array representation of the names
+   * @since 1.57.0
+   */
+  String[] toArray();
 
 }

@@ -119,6 +119,23 @@ public class NotesNamingUtils {
 		}
 		return namesCanonical;
 	}
+
+    /**
+     * This function converts a list of distinguished names in abbreviated format to canonical format.
+     * A fully distinguished name is in canonical format - it contains all possible naming components.
+     * The abbreviated format of a distinguished name removes the labels from the naming components.
+     * 
+     * @param names list of names
+     * @return list of names in canonical format
+     */
+    public static String[] toCanonicalNamesArray(Collection<String> names) {
+        if (names==null) {
+            return null;
+        }
+        
+        List<String> namesList = toCanonicalNames(names);
+        return namesList.toArray(new String[namesList.size()]);
+    }
 	
 	/**
 	 * This function converts a distinguished name in abbreviated format to canonical format.
@@ -378,8 +395,8 @@ public class NotesNamingUtils {
 	 * @param names names for names list, similar to result of @UserNamesList formula, e.g. usernames, wildcards, groups and roles; either abbreviated or canonical
 	 * @return names list
 	 */
-    public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, List<String> names) {
-      int nameCount = names.size();
+    public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, String[] names) {
+      int nameCount = names.length;
       
       int structSize;
       if (PlatformUtils.isWindows()) {
@@ -394,7 +411,7 @@ public class NotesNamingUtils {
       byte[][] nameData = new byte[nameCount][];
       String[] namesCanonical = new String[nameCount];
       for (int i = 0; i < nameCount; i++) {
-        namesCanonical[i] = toCanonicalName(names.get(i));
+        namesCanonical[i] = toCanonicalName(names[i]);
       }
       
       int nameDataSize = 0;

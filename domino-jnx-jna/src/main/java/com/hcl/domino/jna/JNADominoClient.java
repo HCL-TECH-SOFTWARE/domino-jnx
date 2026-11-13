@@ -286,7 +286,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     if (!m_builderNamesList.isEmpty()) {
       // special case where the full usernameslist is already provided
-      namesList = NotesNamingUtils.writeNewNamesList(this, m_builderNamesList);
+      namesList = NotesNamingUtils.writeNewNamesList(this, m_builderNamesList.toArray(new String[m_builderNamesList.size()]));
     } else {
       namesList = NotesNamingUtils.buildNamesList(this, server, getEffectiveUserName());
     }

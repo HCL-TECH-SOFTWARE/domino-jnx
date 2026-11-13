@@ -72,7 +72,7 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 	public JNAEcl(IAPIObject<?> parent, ECLType eclType, List<String> namesList) {
 		super(parent);
 		m_eclType = eclType;
-		m_namesList = NotesNamingUtils.writeNewNamesList(this, NotesNamingUtils.toCanonicalNames(namesList));
+		m_namesList = NotesNamingUtils.writeNewNamesList(this, NotesNamingUtils.toCanonicalNamesArray(namesList));
 		
 		readCapabilities();
 

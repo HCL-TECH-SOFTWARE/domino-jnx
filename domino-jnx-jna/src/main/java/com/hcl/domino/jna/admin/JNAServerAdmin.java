@@ -20,6 +20,7 @@ import java.lang.ref.ReferenceQueue;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -226,7 +227,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
         try (LockedMemory domainsMem = Mem.OSMemoryLock(tokenData.getDomainListHandle())) {
           Pointer ptrDomains = domainsMem.getPointer();
           domains =
-              NotesStringUtils.fromLMBCSStringList(ptrDomains, tokenData.getNumDomains() & 0xffff);
+              Arrays.asList(NotesStringUtils.fromLMBCSStringList(ptrDomains, Short.toUnsignedInt(tokenData.getNumDomains())));
         }
       } else {
         domains = Collections.emptyList();

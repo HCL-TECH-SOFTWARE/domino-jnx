@@ -16,16 +16,16 @@
  */
 package com.hcl.domino.jna.data;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -40,7 +40,6 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.sun.jna.Pointer;
 
 /**
  * NAMES_LIST structure wrapper that wraps a user names list stored in memory
@@ -48,14 +47,14 @@ import com.sun.jna.Pointer;
  * @author Karsten Lehmann
  */
 public class JNAUserNamesList extends BaseJNAAPIObject<JNAUserNamesListAllocations> implements UserNamesList {
-	private List<String> m_names;
+	private String[] m_names;
 
 	public JNAUserNamesList(IAPIObject<?> parent, IAdaptable adaptable) {
 		super(parent);
 
 		DHANDLE handle = adaptable.getAdapter(DHANDLE.class);
 		if (handle==null) {
-			throw new DominoException(0, "Missing DHANDLE which is required for memory management");
+			throw new DominoException(StatusImpl.NOERROR, "Missing DHANDLE which is required for memory management");
 		}
 		getAllocations().setHandle(handle);
 		
@@ -95,42 +94,37 @@ public class JNAUserNamesList extends BaseJNAAPIObject<JNAUserNamesListAllocatio
 		}
 	}
 	
-	@Override
-	public List<String> toList() {
-		checkDisposed();
-		JNAUserNamesListAllocations allocations = getAllocations();
-		
-		if (m_names==null) {
-		  m_names = LockUtil.lockHandle(allocations.getHandle(), (handleByVal) -> {
-				return Mem.OSLockObject(handleByVal, JNAUserNamesList::readNamesList);
-			});
-		}
-		return new ArrayList<>(m_names);
-	}
+    @Override
+    public List<String> toList() {
+      return Collections.unmodifiableList(Arrays.asList(toArray()));
+    }
 	
-	/**
-	 * Decodes a usernames list stored in memory
-	 * 
-	 * @param namesListBufferPtr Pointer to user names list
-	 * @return usernames list
-	 */
-    private static List<String> readNamesList(Pointer namesListBufferPtr) {
-      ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    @Override
+    public String[] toArray() {
+      if (m_names == null) {
+        checkDisposed();
+        JNAUserNamesListAllocations allocations = getAllocations();
+        
+        m_names = LockUtil.lockHandle(allocations.getHandle(), (handleByVal) -> {
+          return Mem.OSLockObject(handleByVal, namesListBufferPtr -> {
+            int numNames = Short.toUnsignedInt(namesListBufferPtr.getShort(0));
+            long offset;
+            if (PlatformUtils.isWindows()) {
+              offset = JNANotesConstants.winNamesListHeaderSize64;
+            } else if (PlatformUtils.isMac()) {
+              offset = JNANotesConstants.macNamesListHeaderSize64;
+            } else {
+              offset = JNANotesConstants.linuxNamesListHeaderSize64;
+            }
 
-      int numNames = Short.toUnsignedInt(namesListBufferPtr.getShort(0));
-      long offset;
-      if (PlatformUtils.isWindows()) {
-        offset = JNANotesConstants.winNamesListHeaderSize64;
-      } else if (PlatformUtils.isMac()) {
-        offset = JNANotesConstants.macNamesListHeaderSize64;
-      } else {
-        offset = JNANotesConstants.linuxNamesListHeaderSize64;
+            if (numNames == 0) {
+              return new String[0];
+            }
+            return NotesStringUtils.fromLMBCSStringList(namesListBufferPtr.share(offset), numNames);
+          });
+        });
       }
-
-      if (numNames == 0) {
-        return Collections.emptyList();
-      }
-      return NotesStringUtils.fromLMBCSStringList(namesListBufferPtr.share(offset), numNames);
+      return m_names;
     }
 
 	@Override
