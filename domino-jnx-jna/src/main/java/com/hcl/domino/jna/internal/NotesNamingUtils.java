@@ -137,27 +137,28 @@ public class NotesNamingUtils {
         return name;
       }
 
-      String cacheKey =
-          name + ((templateName != null && templateName.length() > 0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
-      String abbrName = m_nameCanonicalCache.get(System.identityHashCode(cacheKey.intern()));
+      final Integer cacheKey;
+      final Memory templateNameMem;
+      if(JNXStringUtil.isNotEmpty(templateName)) {
+        cacheKey = System.identityHashCode((name + '|' + templateName).intern());
+        templateNameMem = NotesStringUtils.toLMBCS(templateName, true);
+      } else {
+        cacheKey = System.identityHashCode(name.intern());
+        templateNameMem = null;
+      }
+      String abbrName = m_nameCanonicalCache.get(cacheKey);
       if (abbrName != null) {
         return abbrName;
       }
-
-      Memory templateNameMem =
-          templateName == null ? null : NotesStringUtils.toLMBCS(templateName, true); // used when
-                                                                                      // abbrName is
-                                                                                      // only a
-                                                                                      // common name
-      Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
-      WordByReference outLength = new WordByReference();
-
-      ByteBuffer outNameMem = ThreadBuffers.BUFFER_USERNAME.get();
+      
+      final Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
+      final WordByReference outLength = ThreadBuffers.WORD_BY_REFERENCE.get();
+      final ByteBuffer outNameMem = ThreadBuffers.BUFFER_USERNAME.get();
       NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
 
-      String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
+      final String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
 
-      m_nameCanonicalCache.put(System.identityHashCode(cacheKey.intern()), sOutName);
+      m_nameCanonicalCache.put(cacheKey, sOutName);
 
       return sOutName;
     }
