@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -702,10 +701,13 @@ public enum DesignUtil {
     }
     final List<String> result = new ArrayList<>();
     for (final String val : values) {
-      final StringTokenizer tokenizer = new StringTokenizer(val, "|"); //$NON-NLS-1$
-      while (tokenizer.hasMoreElements()) {
-        result.add(tokenizer.nextToken());
+      int start = 0;
+      int end;
+      while((end = val.indexOf('|', start)) != -1) {
+        result.add(val.substring(start, end));
+        start = end+1;
       }
+      result.add(val.substring(start));
     }
     return result;
   }

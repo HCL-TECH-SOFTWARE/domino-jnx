@@ -49,5 +49,7 @@ public class TestDesignUtil {
     Assertions.assertEquals(Arrays.asList(""), DesignUtil.toTitlesList(null));
     Assertions.assertEquals(Arrays.asList("foo", "bar"), DesignUtil.toTitlesList(Arrays.asList("foo|bar")));
     Assertions.assertEquals(Arrays.asList("foo", "bar", "baz"), DesignUtil.toTitlesList(Arrays.asList("foo|bar", "baz")));
+    Assertions.assertEquals(Arrays.asList("foo", "bar", "foo2", "baz"), DesignUtil.toTitlesList(Arrays.asList("foo|bar|foo2", "baz")));
+    Assertions.assertEquals(Arrays.asList("foo", "", "foo2", "baz"), DesignUtil.toTitlesList(Arrays.asList("foo||foo2", "baz")));
   }
 }
