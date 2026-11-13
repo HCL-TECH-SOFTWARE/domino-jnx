@@ -63,11 +63,11 @@ public class NotesNamingUtils {
 	 */
 	private static final Object BUILDNAMESLIST_LOCK = new Object();
 	
-	private static Map<String, String> m_nameAbbrCache = Collections.synchronizedMap(new LinkedHashMap<String, String>(16,0.75f, true) {
+	private static Map<Integer, String> m_nameAbbrCache = Collections.synchronizedMap(new LinkedHashMap<Integer, String>(16,0.75f, true) {
 		private static final long serialVersionUID = -5818239831757810895L;
 
 		@Override
-		protected boolean removeEldestEntry (Map.Entry<String,String> eldest) {
+		protected boolean removeEldestEntry (Map.Entry<Integer,String> eldest) {
 			if (size() > MAX_STRINGCACHE_SIZE) {
 				return true;
 			}
@@ -76,11 +76,11 @@ public class NotesNamingUtils {
 			}
 		}
 	});
-	private static Map<String, String> m_nameCanonicalCache = Collections.synchronizedMap(new LinkedHashMap<String, String>(16,0.75f, true) {
+	private static Map<Integer, String> m_nameCanonicalCache = Collections.synchronizedMap(new LinkedHashMap<Integer, String>(16,0.75f, true) {
 		private static final long serialVersionUID = -5818239831757810895L;
 
 		@Override
-		protected boolean removeEldestEntry (Map.Entry<String,String> eldest) {
+		protected boolean removeEldestEntry (Map.Entry<Integer,String> eldest) {
 			if (size() > MAX_STRINGCACHE_SIZE) {
 				return true;
 			}
@@ -141,7 +141,7 @@ public class NotesNamingUtils {
 
       String cacheKey =
           name + ((templateName != null && templateName.length() > 0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
-      String abbrName = m_nameCanonicalCache.get(cacheKey);
+      String abbrName = m_nameCanonicalCache.get(System.identityHashCode(cacheKey.intern()));
       if (abbrName != null) {
         return abbrName;
       }
@@ -159,7 +159,7 @@ public class NotesNamingUtils {
 
       String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
 
-      m_nameCanonicalCache.put(cacheKey, sOutName);
+      m_nameCanonicalCache.put(System.identityHashCode(cacheKey.intern()), sOutName);
 
       return sOutName;
     }
@@ -181,7 +181,7 @@ public class NotesNamingUtils {
 		}
 		
 		final String cacheKey = name;
-		String abbrName = m_nameAbbrCache.get(cacheKey);
+		String abbrName = m_nameAbbrCache.get(System.identityHashCode(cacheKey.intern()));
 		
 		if (abbrName==null) {
 		  List<String> st = new ArrayList<>();
@@ -202,7 +202,7 @@ public class NotesNamingUtils {
 			}
 			
 			abbrName = sb.toString();
-			m_nameAbbrCache.put(cacheKey, abbrName);
+			m_nameAbbrCache.put(System.identityHashCode(cacheKey.intern()), abbrName);
 		}
 
 		return abbrName;
@@ -350,7 +350,7 @@ public class NotesNamingUtils {
 
       String cacheKey =
           name + ((templateName != null && templateName.length() > 0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
-      String abbrName = m_nameAbbrCache.get(cacheKey);
+      String abbrName = m_nameAbbrCache.get(System.identityHashCode(cacheKey.intern()));
       if (abbrName != null) {
         return abbrName;
       }
@@ -365,9 +365,9 @@ public class NotesNamingUtils {
 
       NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
 
-      String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
+      String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
 
-      m_nameAbbrCache.put(cacheKey, sOutName);
+      m_nameAbbrCache.put(System.identityHashCode(cacheKey.intern()), sOutName);
 
       return sOutName;
     }
@@ -404,55 +404,43 @@ public class NotesNamingUtils {
 	 * @param names names for names list, similar to result of @UserNamesList formula, e.g. usernames, wildcards, groups and roles; either abbreviated or canonical
 	 * @return memory handle to NAMES_LIST
 	 */
-	private static DHANDLE b64_writeUserNamesList(List<String> names) {
-		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		storeAsUserNamesList(names, bOut);
-		
-		if (!PlatformUtils.is64Bit()) {
-			throw new IllegalStateException("Only supported for 64 bit");
-		}
-		
-		Memory namesListMem;
-		if (PlatformUtils.isWindows()) {
-			namesListMem = new Memory(JNANotesConstants.winNamesListHeaderSize64);
-			WinNotesNamesListHeader64Struct namesListHeader = WinNotesNamesListHeader64Struct.newInstance(namesListMem);
-			namesListHeader.NumNames = (short) (names.size() & 0xffff);
-			namesListHeader.write();
-		}
-		else if (PlatformUtils.isMac()) {
-			namesListMem = new Memory(JNANotesConstants.macNamesListHeaderSize64);
-			MacNotesNamesListHeader64Struct namesListHeader = MacNotesNamesListHeader64Struct.newInstance(namesListMem);
-			namesListHeader.NumNames = (short) (names.size() & 0xffff);
-			namesListHeader.write();
-		}
-		else {
-			namesListMem = new Memory(JNANotesConstants.linuxNamesListHeaderSize64);
-			LinuxNotesNamesListHeader64Struct namesListHeader = LinuxNotesNamesListHeader64Struct.newInstance(namesListMem);
-			namesListHeader.NumNames = (short) (names.size() & 0xffff);
-			namesListHeader.write();
-		}
+    private static DHANDLE b64_writeUserNamesList(List<String> names) {
+      ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+      storeAsUserNamesList(names, bOut);
 
-		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		Mem.OSMemAlloc((short) 0, (int) namesListMem.size() + bOut.size(), retHandle);
-		
-		//write the data
-		LockUtil.lockHandle(retHandle, (handleByVal) -> {
-			Pointer ptr = Mem.OSLockObject(handleByVal);
-			try {
-				byte[] namesListByteArr = namesListMem.getByteArray(0, (int) namesListMem.size());
-				ptr.write(0, namesListByteArr, 0, namesListByteArr.length);
-				
-				byte[] namesDataArr = bOut.toByteArray();
-				ptr.write(namesListByteArr.length, namesDataArr, 0, namesDataArr.length);
-			}
-			finally {
-				Mem.OSUnlockObject(handleByVal);
-			}
-			return 0;
-		});
-		
-		return retHandle;
-	}
+      if (!PlatformUtils.is64Bit()) {
+        throw new IllegalStateException("Only supported for 64 bit");
+      }
+
+      int size;
+      if (PlatformUtils.isWindows()) {
+        size = JNANotesConstants.winNamesListHeaderSize64;
+      } else if (PlatformUtils.isMac()) {
+        size = JNANotesConstants.macNamesListHeaderSize64;
+      } else {
+        size = JNANotesConstants.linuxNamesListHeaderSize64;
+      }
+
+      DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
+      Mem.OSMemAlloc((short) 0, size + bOut.size(), retHandle);
+
+      // write the data
+      LockUtil.lockHandle(retHandle, (handleByVal) -> {
+        Pointer ptr = Mem.OSLockObject(handleByVal);
+        try {
+          // All the structure variants start with WORD NumNames
+          ptr.setShort(0, (short) names.size());
+
+          byte[] namesDataArr = bOut.toByteArray();
+          ptr.write(size, namesDataArr, 0, namesDataArr.length);
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+        }
+        return 0;
+      });
+
+      return retHandle;
+    }
 
 	/**
 	 * Programatically creates a {@link JNAUserNamesList}
