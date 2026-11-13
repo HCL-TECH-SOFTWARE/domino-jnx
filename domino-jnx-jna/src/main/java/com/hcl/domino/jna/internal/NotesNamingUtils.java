@@ -17,8 +17,6 @@
 package com.hcl.domino.jna.internal;
 
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -373,31 +371,6 @@ public class NotesNamingUtils {
     }
 
 	/**
-	 * Writes the specified names list in null terminated LMBCS strings to a {@link ByteArrayOutputStream}
-	 * 
-	 * @param names names to write
-	 * @param bOut target output stream
-	 */
-	private static void storeAsUserNamesList(List<String> names, ByteArrayOutputStream bOut) {
-		//convert to canonical format
-		List<String> namesCanonical = new ArrayList<>(names.size());
-		for (int i=0; i<names.size(); i++) {
-			namesCanonical.add(toCanonicalName(names.get(i)));
-		}
-		
-		for (int i=0; i<namesCanonical.size(); i++) {
-			String currName = namesCanonical.get(i);
-			Memory currNameLMBCS = NotesStringUtils.toLMBCS(currName, true);
-			
-			try {
-				bOut.write(currNameLMBCS.getByteArray(0, (int) currNameLMBCS.size()));
-			} catch (IOException e) {
-				throw new DominoException(StatusImpl.NOERROR, "Error writing to ByteArrayOutputStream");
-			}
-		}
-	}
-
-	/**
 	 * Programatically creates a {@link JNAUserNamesList}
 	 * 
 	 * @param parentObj parent API object used for memory management
@@ -405,8 +378,7 @@ public class NotesNamingUtils {
 	 * @return names list
 	 */
     public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, List<String> names) {
-      ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-      storeAsUserNamesList(names, bOut);
+      int nameCount = names.size();
       
       int structSize;
       if (PlatformUtils.isWindows()) {
@@ -417,26 +389,41 @@ public class NotesNamingUtils {
         structSize = JNANotesConstants.linuxNamesListHeaderSize64;
       }
       
+      // convert to canonical format
+      byte[][] nameData = new byte[nameCount][];
+      String[] namesCanonical = new String[nameCount];
+      for (int i = 0; i < nameCount; i++) {
+        namesCanonical[i] = toCanonicalName(names.get(i));
+      }
+      
+      int nameDataSize = 0;
+      for (int i = 0; i < nameCount; i++) {
+        String currName = namesCanonical[i];
+        Memory currNameLMBCS = NotesStringUtils.toLMBCS(currName, true);
+      
+        byte[] name1 = currNameLMBCS.getByteArray(0, (int) currNameLMBCS.size());
+        nameData[i] = name1;
+        nameDataSize += name1.length;
+      }
+      
       DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-      Mem.OSMemAlloc((short) 0, structSize + bOut.size(), retHandle);
+      Mem.OSMemAlloc((short) 0, structSize + nameDataSize, retHandle);
       
       // write the data
-      LockUtil.lockHandle(retHandle, (handleByVal) -> {
-        Pointer ptr = Mem.OSLockObject(handleByVal);
-        try {
+      LockUtil.lockHandle(retHandle, (handleByVal) ->
+        Mem.OSLockObject(handleByVal, ptr -> {
           // All the structure variants start with WORD NumNames
-          ptr.setShort(0, (short) names.size());
-      
-          byte[] namesDataArr = bOut.toByteArray();
-          ptr.write(structSize, namesDataArr, 0, namesDataArr.length);
-        } finally {
-          Mem.OSUnlockObject(handleByVal);
-        }
-        return 0;
-      });
-      DHANDLE handle64 = retHandle;
-      JNAUserNamesList namesList = new JNAUserNamesList(parentObj, handle64);
-      return namesList;
+          ptr.setShort(0, (short) nameCount);
+
+          int offset = structSize;
+          for (byte[] name : nameData) {
+            ptr.write(offset, name, 0, name.length);
+            offset += name.length;
+          }
+          return null;
+        })
+      );
+      return new JNAUserNamesList(parentObj, retHandle);
     }
 	
 	/**
