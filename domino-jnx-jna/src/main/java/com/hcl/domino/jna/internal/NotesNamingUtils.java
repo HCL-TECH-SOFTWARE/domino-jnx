@@ -398,51 +398,6 @@ public class NotesNamingUtils {
 	}
 
 	/**
-	 * Allocates memory in the Notes memory pool and writes a NAMES_LIST data structure with
-	 * the specified names. The names are automatically converted to canonical format.
-	 * 
-	 * @param names names for names list, similar to result of @UserNamesList formula, e.g. usernames, wildcards, groups and roles; either abbreviated or canonical
-	 * @return memory handle to NAMES_LIST
-	 */
-    private static DHANDLE b64_writeUserNamesList(List<String> names) {
-      ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-      storeAsUserNamesList(names, bOut);
-
-      if (!PlatformUtils.is64Bit()) {
-        throw new IllegalStateException("Only supported for 64 bit");
-      }
-
-      int size;
-      if (PlatformUtils.isWindows()) {
-        size = JNANotesConstants.winNamesListHeaderSize64;
-      } else if (PlatformUtils.isMac()) {
-        size = JNANotesConstants.macNamesListHeaderSize64;
-      } else {
-        size = JNANotesConstants.linuxNamesListHeaderSize64;
-      }
-
-      DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-      Mem.OSMemAlloc((short) 0, size + bOut.size(), retHandle);
-
-      // write the data
-      LockUtil.lockHandle(retHandle, (handleByVal) -> {
-        Pointer ptr = Mem.OSLockObject(handleByVal);
-        try {
-          // All the structure variants start with WORD NumNames
-          ptr.setShort(0, (short) names.size());
-
-          byte[] namesDataArr = bOut.toByteArray();
-          ptr.write(size, namesDataArr, 0, namesDataArr.length);
-        } finally {
-          Mem.OSUnlockObject(handleByVal);
-        }
-        return 0;
-      });
-
-      return retHandle;
-    }
-
-	/**
 	 * Programatically creates a {@link JNAUserNamesList}
 	 * 
 	 * @param parentObj parent API object used for memory management
@@ -450,7 +405,36 @@ public class NotesNamingUtils {
 	 * @return names list
 	 */
     public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, List<String> names) {
-      DHANDLE handle64 = b64_writeUserNamesList(names);
+      ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+      storeAsUserNamesList(names, bOut);
+      
+      int structSize;
+      if (PlatformUtils.isWindows()) {
+        structSize = JNANotesConstants.winNamesListHeaderSize64;
+      } else if (PlatformUtils.isMac()) {
+        structSize = JNANotesConstants.macNamesListHeaderSize64;
+      } else {
+        structSize = JNANotesConstants.linuxNamesListHeaderSize64;
+      }
+      
+      DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
+      Mem.OSMemAlloc((short) 0, structSize + bOut.size(), retHandle);
+      
+      // write the data
+      LockUtil.lockHandle(retHandle, (handleByVal) -> {
+        Pointer ptr = Mem.OSLockObject(handleByVal);
+        try {
+          // All the structure variants start with WORD NumNames
+          ptr.setShort(0, (short) names.size());
+      
+          byte[] namesDataArr = bOut.toByteArray();
+          ptr.write(structSize, namesDataArr, 0, namesDataArr.length);
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+        }
+        return 0;
+      });
+      DHANDLE handle64 = retHandle;
       JNAUserNamesList namesList = new JNAUserNamesList(parentObj, handle64);
       return namesList;
     }
