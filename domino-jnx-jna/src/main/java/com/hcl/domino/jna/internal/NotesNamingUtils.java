@@ -396,57 +396,6 @@ public class NotesNamingUtils {
 			}
 		}
 	}
-	
-	/**
-	 * Allocates memory in the Notes memory pool and writes a NAMES_LIST data structure with
-	 * the specified names. The names are automatically converted to canonical format.
-	 * 
-	 * @param names names for names list, similar to result of @UserNamesList formula, e.g. usernames, wildcards, groups and roles; either abbreviated or canonical
-	 * @return memory handle to NAMES_LIST
-	 */
-	private static DHANDLE b32_writeUserNamesList(List<String> names) {
-		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		storeAsUserNamesList(names, bOut);
-		
-		if (PlatformUtils.is64Bit()) {
-			throw new IllegalStateException("Only supported for 32 bit");
-		}
-		
-		Memory namesListMem;
-		if (PlatformUtils.isWindows()) {
-			namesListMem = new Memory(JNANotesConstants.winNamesListHeaderSize32);
-			WinNotesNamesListHeader32Struct namesListHeader = WinNotesNamesListHeader32Struct.newInstance(namesListMem);
-			namesListHeader.NumNames = (short) (names.size() & 0xffff);
-			namesListHeader.write();
-		}
-		else {
-			namesListMem = new Memory(JNANotesConstants.namesListHeaderSize32);
-			NotesNamesListHeader32Struct namesListHeader = NotesNamesListHeader32Struct.newInstance(namesListMem);
-			namesListHeader.NumNames = (short) (names.size() & 0xffff);
-			namesListHeader.write();
-		}
-		
-		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		Mem.OSMemAlloc((short) 0, JNANotesConstants.namesListHeaderSize32 + bOut.size(), retHandle);
-		
-		//write the data
-		LockUtil.lockHandle(retHandle, (handleByVal) -> {
-			Pointer ptr = Mem.OSLockObject(handleByVal);
-			try {
-				byte[] namesListByteArr = namesListMem.getByteArray(0, (int) namesListMem.size());
-				ptr.write(0, namesListByteArr, 0, namesListByteArr.length);
-				
-				byte[] namesDataArr = bOut.toByteArray();
-				ptr.write(namesListByteArr.length, namesDataArr, 0, namesDataArr.length);
-			}
-			finally {
-				Mem.OSUnlockObject(handleByVal);
-			}
-			return 0;
-		});
-
-		return retHandle;
-	}
 
 	/**
 	 * Allocates memory in the Notes memory pool and writes a NAMES_LIST data structure with
@@ -512,18 +461,11 @@ public class NotesNamingUtils {
 	 * @param names names for names list, similar to result of @UserNamesList formula, e.g. usernames, wildcards, groups and roles; either abbreviated or canonical
 	 * @return names list
 	 */
-	public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, List<String> names) {
-		if (PlatformUtils.is64Bit()) {
-			DHANDLE handle64 = b64_writeUserNamesList(names);
-			JNAUserNamesList namesList = new JNAUserNamesList(parentObj, handle64);
-			return namesList;
-		}
-		else {
-			DHANDLE handle32 = b32_writeUserNamesList(names);
-			JNAUserNamesList namesList = new JNAUserNamesList(parentObj, handle32);
-			return namesList;
-		}
-	}
+    public static JNAUserNamesList writeNewNamesList(IAPIObject<?> parentObj, List<String> names) {
+      DHANDLE handle64 = b64_writeUserNamesList(names);
+      JNAUserNamesList namesList = new JNAUserNamesList(parentObj, handle64);
+      return namesList;
+    }
 	
 	/**
 	 * Computes a {@link JNAUserNamesList} structure with all name variants, wildcards and groups for
@@ -717,103 +659,74 @@ public class NotesNamingUtils {
 	 * @param namesList names list
 	 * @param privileges new privileges
 	 */
-	public static void setPrivileges(JNAUserNamesList namesList, EnumSet<Privileges> privileges) {
-		int bitMask = 0;
-		for (Privileges currPrivilege : Privileges.values()) {
-			if (privileges.contains(currPrivilege)) {
-				bitMask = bitMask | currPrivilege.getValue();
-			}
-		}
-		
-		short bitMaskAsShort = (short) (bitMask & 0xffff);
+    public static void setPrivileges(JNAUserNamesList namesList, EnumSet<Privileges> privileges) {
+      int bitMask = 0;
+      for (Privileges currPrivilege : Privileges.values()) {
+        if (privileges.contains(currPrivilege)) {
+          bitMask = bitMask | currPrivilege.getValue();
+        }
+      }
 
-		/*Use different header implementations based on architecture, because we have
-		//different alignments and data types:
+      short bitMaskAsShort = (short) (bitMask & 0xffff);
 
-		typedef struct {
-			WORD		NumNames;
-			LICENSEID	License;
-											
+      /*
+       * Use different header implementations based on architecture, because we have
+       * //different alignments and data types:
+       * typedef struct {
+       * WORD NumNames;
+       * LICENSEID License;
+       * #if defined(UNIX) || defined(OS2_2x) || defined(W32)
+       * DWORD Authenticated;
+       * #else
+       * WORD Authenticated;
+       * #endif
+       * } NAMES_LIST;
+       */
 
-			#if defined(UNIX) || defined(OS2_2x) || defined(W32)
-			DWORD		Authenticated;
-			#else							
-			WORD		Authenticated;
-			#endif
-			} NAMES_LIST;
-		*/
-		
-		DHANDLE handle = namesList.getAdapter(DHANDLE.class);
-		if (handle==null || handle.isNull()) {
-			throw new DominoException(StatusImpl.NOERROR, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
-		}
-		
-		final int fBitMask = bitMask;
-		
-		if (PlatformUtils.is64Bit()) {
-			LockUtil.lockHandle(handle, (handleByVal) -> {
-				Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
-				
-				try {
-					if (PlatformUtils.isWindows()) {
-						WinNotesNamesListHeader64Struct namesListHeader = WinNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						namesListHeader.Authenticated = fBitMask;
-						namesListHeader.write();
-						namesListHeader.read();
-					}
-					else if (PlatformUtils.isMac()) {
-						MacNotesNamesListHeader64Struct namesListHeader = MacNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
+      DHANDLE handle = namesList.getAdapter(DHANDLE.class);
+      if (handle == null || handle.isNull()) {
+        throw new DominoException(StatusImpl.NOERROR,
+            MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
+      }
 
-						namesListHeader.Authenticated = bitMaskAsShort;
-						namesListHeader.write();
-						namesListHeader.read();
-					}
-					else {
-						LinuxNotesNamesListHeader64Struct namesListHeader = LinuxNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						
-						//setting authenticated flag for the user is required when running on the server
-						namesListHeader.Authenticated = fBitMask;
-						namesListHeader.write();
-						namesListHeader.read();
-					}
-				}
-				finally {
-					Mem.OSUnlockObject(handleByVal);
-				}
-				return 0;
-			});
-		}
-		else {
-			LockUtil.lockHandle(handle, (handleByVal) -> {
-				Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
-				
-				try {
-					//setting authenticated flag for the user is required when running on the server
-					if (PlatformUtils.isWindows()) {
-						WinNotesNamesListHeader32Struct namesListHeader = WinNotesNamesListHeader32Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						namesListHeader.Authenticated = fBitMask;
-						namesListHeader.write();
-						namesListHeader.read();
-					}
-					else {
-						NotesNamesListHeader32Struct namesListHeader = NotesNamesListHeader32Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						namesListHeader.Authenticated = fBitMask;
-						namesListHeader.write();
-						namesListHeader.read();
-					}
-				}
-				finally {
-					Mem.OSUnlockObject(handleByVal);
-				}
-				return 0;
-			});
-		}
-	}
+      final int fBitMask = bitMask;
+
+      LockUtil.lockHandle(handle, (handleByVal) -> {
+        Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
+
+        try {
+          if (PlatformUtils.isWindows()) {
+            WinNotesNamesListHeader64Struct namesListHeader =
+                WinNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+            namesListHeader.Authenticated = fBitMask;
+            namesListHeader.write();
+            namesListHeader.read();
+          } else if (PlatformUtils.isMac()) {
+            MacNotesNamesListHeader64Struct namesListHeader =
+                MacNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+
+            namesListHeader.Authenticated = bitMaskAsShort;
+            namesListHeader.write();
+            namesListHeader.read();
+          } else {
+            LinuxNotesNamesListHeader64Struct namesListHeader =
+                LinuxNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+
+            // setting authenticated flag for the user is required when running on the server
+            namesListHeader.Authenticated = fBitMask;
+            namesListHeader.write();
+            namesListHeader.read();
+          }
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+        }
+        return 0;
+      });
+
+    }
 	
 	/**
 	 * Reads which privileges have been set in the names list by method {@link #setPrivileges(JNAUserNamesList, EnumSet)}
@@ -821,89 +734,64 @@ public class NotesNamingUtils {
 	 * @param namesList names list
 	 * @return privileges
 	 */
-	public static EnumSet<Privileges> getPrivileges(JNAUserNamesList namesList) {
-		/*Use different header implementations based on architecture, because we have
-		//different alignments and data types:
+    public static EnumSet<Privileges> getPrivileges(JNAUserNamesList namesList) {
+      /*
+       * Use different header implementations based on architecture, because we have
+       * //different alignments and data types:
+       * typedef struct {
+       * WORD NumNames;
+       * LICENSEID License;
+       * #if defined(UNIX) || defined(OS2_2x) || defined(W32)
+       * DWORD Authenticated;
+       * #else
+       * WORD Authenticated;
+       * #endif
+       * } NAMES_LIST;
+       */
 
-		typedef struct {
-			WORD		NumNames;
-			LICENSEID	License;
-											
+      int authenticated;
 
-			#if defined(UNIX) || defined(OS2_2x) || defined(W32)
-			DWORD		Authenticated;
-			#else							
-			WORD		Authenticated;
-			#endif
-			} NAMES_LIST;
-		*/
-		
-		int authenticated;
-		
-		DHANDLE handle = namesList.getAdapter(DHANDLE.class);
-		if (handle==null || handle.isNull()) {
-			throw new DominoException(StatusImpl.NOERROR, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
-		}
+      DHANDLE handle = namesList.getAdapter(DHANDLE.class);
+      if (handle == null || handle.isNull()) {
+        throw new DominoException(StatusImpl.NOERROR,
+            MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
+      }
 
-		if (PlatformUtils.is64Bit()) {
-			authenticated = LockUtil.lockHandle(handle, (handleByVal) -> {
-				Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
-				
-				try {
-					if (PlatformUtils.isWindows()) {
-						WinNotesNamesListHeader64Struct namesListHeader = WinNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						return namesListHeader.Authenticated;
-					}
-					else if (PlatformUtils.isMac()) {
-						MacNotesNamesListHeader64Struct namesListHeader = MacNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
+      authenticated = LockUtil.lockHandle(handle, (handleByVal) -> {
+        Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
 
-						return (int) namesListHeader.Authenticated;
-					}
-					else {
-						LinuxNotesNamesListHeader64Struct namesListHeader = LinuxNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						
-						//setting authenticated flag for the user is required when running on the server
-						return namesListHeader.Authenticated;
-					}
-				}
-				finally {
-					Mem.OSUnlockObject(handleByVal);
-				}
-			});
-		}
-		else {
-			authenticated = LockUtil.lockHandle(handle, (handleByVal) -> {
-				Pointer namesListBufferPtr = Mem.OSLockObject(handleByVal);
-				
-				try {
-					//setting authenticated flag for the user is required when running on the server
-					if (PlatformUtils.isWindows()) {
-						WinNotesNamesListHeader32Struct namesListHeader = WinNotesNamesListHeader32Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						return namesListHeader.Authenticated;
-					}
-					else {
-						NotesNamesListHeader32Struct namesListHeader = NotesNamesListHeader32Struct.newInstance(namesListBufferPtr);
-						namesListHeader.read();
-						return namesListHeader.Authenticated;
-					}
-				}
-				finally {
-					Mem.OSUnlockObject(handleByVal);
-				}
-			});
-		}
-		
-		EnumSet<Privileges> privileges = EnumSet.noneOf(Privileges.class);
-		
-		for (Privileges currPrivilege : Privileges.values()) {
-			if ((authenticated & currPrivilege.getValue()) == currPrivilege.getValue()) {
-				privileges.add(currPrivilege);
-			}
-		}
-		return privileges;
-	}
+        try {
+          if (PlatformUtils.isWindows()) {
+            WinNotesNamesListHeader64Struct namesListHeader =
+                WinNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+            return namesListHeader.Authenticated;
+          } else if (PlatformUtils.isMac()) {
+            MacNotesNamesListHeader64Struct namesListHeader =
+                MacNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+
+            return (int) namesListHeader.Authenticated;
+          } else {
+            LinuxNotesNamesListHeader64Struct namesListHeader =
+                LinuxNotesNamesListHeader64Struct.newInstance(namesListBufferPtr);
+            namesListHeader.read();
+
+            // setting authenticated flag for the user is required when running on the server
+            return namesListHeader.Authenticated;
+          }
+        } finally {
+          Mem.OSUnlockObject(handleByVal);
+        }
+      });
+
+      EnumSet<Privileges> privileges = EnumSet.noneOf(Privileges.class);
+
+      for (Privileges currPrivilege : Privileges.values()) {
+        if ((authenticated & currPrivilege.getValue()) == currPrivilege.getValue()) {
+          privileges.add(currPrivilege);
+        }
+      }
+      return privileges;
+    }
 }

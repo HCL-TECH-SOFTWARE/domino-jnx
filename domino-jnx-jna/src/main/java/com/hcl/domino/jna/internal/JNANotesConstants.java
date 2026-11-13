@@ -61,8 +61,6 @@ public interface JNANotesConstants {
 	int rangeSize = NotesRangeStruct.newInstance().size();
 	int timeSize = NotesTimeStruct.newInstance().size();
 	int winNamesListHeaderSize64 = WinNotesNamesListHeader64Struct.newInstance().size();
-	int winNamesListHeaderSize32 = WinNotesNamesListHeader32Struct.newInstance().size();
-	int namesListHeaderSize32 = NotesNamesListHeader32Struct.newInstance().size();
 	int linuxNamesListHeaderSize64 = LinuxNotesNamesListHeader64Struct.newInstance().size();
 	int macNamesListHeaderSize64 = MacNotesNamesListHeader64Struct.newInstance().size();
 	int intlFormatSize = IntlFormatStruct.newInstance().size();
