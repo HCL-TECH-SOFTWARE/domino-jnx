@@ -1309,7 +1309,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     DominoDateTime retDiffTimeWrap = new JNADominoDateTime(retDiffTimeStruct);
 
-    int iBufLength = retBufferLength.getValue() & 0xffff;
+    int iBufLength = retBufferLength.getValue();
     if (iBufLength == 0 || result.getMaskedValue() == ERR_NOT_FOUND) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
