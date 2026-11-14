@@ -24,20 +24,14 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-
 import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.commons.util.InnardsConverter;
-import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -160,26 +154,6 @@ public class NotesTimeDateStruct extends BaseStructure implements Serializable, 
 		return hasDate;
 	}
 	
-	/**
-	 * Converts the time date to a calendar
-	 * 
-	 * @return calendar or null if data is invalid
-	 */
-	@SuppressWarnings("deprecation")
-	public Calendar toCalendar() {
-		return NotesDateTimeUtils.innardsToCalendar(this.Innards);
-	}
-	
-	/**
-	 * Converts the time date to a Java {@link Date}
-	 * 
-	 * @return date or null if data is invalid
-	 */
-	public Date toDate() {
-		Calendar cal = toCalendar();
-		return cal==null ? null : cal.getTime();
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof NotesTimeDateStruct) {
@@ -263,60 +237,6 @@ public class NotesTimeDateStruct extends BaseStructure implements Serializable, 
 		clone.Innards[1] = this.Innards[1];
 		clone.write();
 		return clone;
-	}
-	
-	/**
-	 * Modifies the data by adding/subtracting values for year, month, day, hours, minutes and seconds
-	 * 
-	 * @param year positive or negative value or 0 for no change
-	 * @param month positive or negative value or 0 for no change
-	 * @param day positive or negative value or 0 for no change
-	 * @param hours positive or negative value or 0 for no change
-	 * @param minutes positive or negative value or 0 for no change
-	 * @param seconds positive or negative value or 0 for no change
-	 */
-	public void adjust(int year, int month, int day, int hours, int minutes, int seconds) {
-		@SuppressWarnings("deprecation")
-		Calendar cal = NotesDateTimeUtils.innardsToCalendar(this.Innards);
-		if (cal!=null) {
-			boolean modified = false;
-			
-			if (NotesDateTimeUtils.hasDate(cal)) {
-				if (year!=0) {
-					cal.add(Calendar.YEAR, year);
-					modified=true;
-				}
-				if (month!=0) {
-					cal.add(Calendar.MONTH, month);
-					modified=true;
-				}
-				if (day!=0) {
-					cal.add(Calendar.DATE, day);
-					modified=true;
-				}
-			}
-			if (NotesDateTimeUtils.hasTime(cal)) {
-				if (hours!=0) {
-					cal.add(Calendar.HOUR, hours);
-					modified=true;
-				}
-				if (minutes!=0) {
-					cal.add(Calendar.MINUTE, minutes);
-					modified=true;
-				}
-				if (seconds!=0) {
-					cal.add(Calendar.SECOND, seconds);
-					modified=true;
-				}
-			}
-			
-			if (modified) {
-				int[] newInnards = InnardsConverter.encodeInnards(((GregorianCalendar)cal).toZonedDateTime());
-				this.Innards[0] = newInnards[0];
-				this.Innards[1] = newInnards[1];
-				write();
-			}
-		}
 	}
 	
 	public static NotesTimeDateStruct.ByReference newInstanceByReference() {

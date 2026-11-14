@@ -19,12 +19,9 @@ package com.hcl.domino.commons.util;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.misc.NotesConstants;
 
@@ -97,32 +94,6 @@ public class NotesDateTimeUtils {
     }
   }
 
-  @Deprecated
-  public static Calendar createCalendar(final int year, final int month, final int day, final int hour, final int minute,
-      final int second, final int millis, final TimeZone zone) {
-    final Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.YEAR, year);
-    cal.set(Calendar.MONTH, month - 1);
-    cal.set(Calendar.DAY_OF_MONTH, day);
-    cal.set(Calendar.HOUR_OF_DAY, hour);
-    cal.set(Calendar.MINUTE, minute);
-    cal.set(Calendar.SECOND, second);
-    cal.set(Calendar.MILLISECOND, millis);
-    cal.set(Calendar.ZONE_OFFSET, zone.getRawOffset());
-    return cal;
-  }
-
-  /**
-   * Returns the current timezone's GMT offset
-   * 
-   * @return offset
-   */
-  public static int getGMTOffset() {
-    final TimeZone tz = TimeZone.getDefault();
-
-    return tz.getRawOffset() / 3600000;
-  }
-
   /**
    * Method to check whether year, month and date fields are set
    * 
@@ -172,102 +143,6 @@ public class NotesDateTimeUtils {
       throw new IllegalArgumentException(MessageFormat.format("Invalid innard size: {0}, expected 2", innards.length));
     }
     return innards[0] != NotesConstants.ALLDAY;
-  }
-
-  /**
-   * Converts C API innard values to Java {@link Calendar}
-   * 
-   * @param innards array with 2 innard values
-   * @return calendar or null if invalid innards
-   */
-  @Deprecated
-  public static Calendar innardsToCalendar(final int[] innards) {
-    return GregorianCalendar.from(((OffsetDateTime) InnardsConverter.decodeInnards(innards)).toZonedDateTime());
-  }
-
-  /**
-   * Method to compare two date/time values and check whether the first is after
-   * the second
-   * 
-   * @param innards1 first date/time
-   * @param innards2 second date/time
-   * @return true if after
-   */
-  public static boolean isAfter(final int[] innards1, final int[] innards2) {
-    return NotesDateTimeUtils.compareInnards(innards1, innards2) > 0;
-  }
-
-  /**
-   * Method to compare two date/time values and check whether the first is before
-   * the second
-   * 
-   * @param innards1 first date/time
-   * @param innards2 second date/time
-   * @return true if before
-   */
-  public static boolean isBefore(final int[] innards1, final int[] innards2) {
-    return NotesDateTimeUtils.compareInnards(innards1, innards2) < 0;
-  }
-
-  /**
-   * Returns whether the current timezone is in daylight savings time
-   * 
-   * @return true if DST
-   */
-  public static boolean isDaylightTime() {
-    final TimeZone tz = TimeZone.getDefault();
-
-    return tz.useDaylightTime();
-  }
-
-  /**
-   * Method to compare two date/time values and check whether both are equal
-   * 
-   * @param innards1 first date/time
-   * @param innards2 second date/time
-   * @return true if equal
-   */
-  public static boolean isEqual(final int[] innards1, final int[] innards2) {
-    return NotesDateTimeUtils.compareInnards(innards1, innards2) == 0;
-  }
-
-  /**
-   * Clears the year, month and date fields of a {@link Calendar} object
-   * 
-   * @param cal calendar
-   */
-  public static void setAnyDate(final Calendar cal) {
-    // clear date fields
-    // clear year
-    cal.clear(Calendar.YEAR);
-
-    // clear month
-    cal.clear(Calendar.MONTH);
-
-    // clear day
-    cal.clear(Calendar.DATE);
-  }
-
-  /**
-   * Clears the hour, minute, second and millisecond fields of a {@link Calendar}
-   * object
-   * 
-   * @param cal calendar
-   */
-  public static void setAnyTime(final Calendar cal) {
-    // set date only
-    // clear time fields
-    // clear hour of the day
-    cal.clear(Calendar.HOUR_OF_DAY);
-
-    // clear minute
-    cal.clear(Calendar.MINUTE);
-
-    // clear second
-    cal.clear(Calendar.SECOND);
-
-    // clear millisecond
-    cal.clear(Calendar.MILLISECOND);
   }
 
   /**

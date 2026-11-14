@@ -19,12 +19,10 @@ package com.hcl.domino.jna.internal;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
@@ -98,21 +96,6 @@ public class ItemDecoder {
 		
 		return new JNADominoDateTime(innards);
 	}
-	
-	public static Calendar decodeTimeDate(final Pointer ptr, int valueLength) {
-		int[] innards = ptr.getIntArray(0, 2);
-		@SuppressWarnings("deprecation")
-		Calendar calDate = NotesDateTimeUtils.innardsToCalendar(innards);
-		return calDate;
-	}
-	
-    public static Calendar decodeTimeDate(final ByteBuffer ptr, int valueLength) {
-      int[] innards = new int[2];
-      ptr.asIntBuffer().get(innards);
-      @SuppressWarnings("deprecation")
-      Calendar calDate = NotesDateTimeUtils.innardsToCalendar(innards);
-      return calDate;
-  }
 
 	public static List<Object> decodeNumberList(Pointer ptr, int valueLength) {
 		
