@@ -2232,9 +2232,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           MessageFormat.format("Could not encode search keys: {0}", Arrays.toString(keys)), e);
     }
 
-    final NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance(); // null;
-                                                                                                   // //
-                                                                                                   // NotesCollectionPositionStruct.newInstance();
+    final NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance();
     final IntByReference retNumMatches = new IntByReference();
     final WordByReference retSignalFlags = new WordByReference();
     final IntByReference retSequence = new IntByReference();
