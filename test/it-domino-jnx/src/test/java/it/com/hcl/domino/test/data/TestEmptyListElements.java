@@ -18,7 +18,7 @@ public class TestEmptyListElements extends AbstractNotesRuntimeTest {
     withTempDb((db) -> {
       Document doc = db.createDocument();
       String testTxt = new String(produceTestData(30000), StandardCharsets.US_ASCII);
-      List<String> values = Arrays.asList(testTxt, "val1", "", "val2", "val3");
+      List<String> values = Arrays.asList("aa", "bbb", testTxt, "val1", "", "val2", "val3");
       doc.replaceItemValue("field", values);
       
       doc.save();

@@ -484,7 +484,7 @@ public class NotesLookupResultBufferDecoder {
 				bufferPos += (itemValueLengths[j] - 2);
 
 				if (decodeAllValues) {
-					int itemValueBufferSizeAsInt = (int) (itemValueBufferSizes[j] & 0xffffffff);
+					int itemValueBufferSizeAsInt = itemValueBufferSizes[j];
 
 					switch(itemDataTypes[j]) {
 					  case ItemDataTypeConstants.TYPE_TEXT:
