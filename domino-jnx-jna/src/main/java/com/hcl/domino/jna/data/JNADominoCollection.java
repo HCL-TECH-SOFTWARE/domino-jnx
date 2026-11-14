@@ -931,7 +931,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     );
 
     if (result.getMaskedValue() == ERR_NOT_FOUND) {
-      return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
+      return new NotesViewLookupResultData(null, Collections.emptyList(), 0, 0,
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     }
     result.orElseThrow();
@@ -942,7 +942,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     buf.position(0);
 
     if (retNumMatches.getValue() == 0 || !buf.hasRemaining()) {
-      return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
+      return new NotesViewLookupResultData(null, Collections.emptyList(), 0, 0,
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     } else {
       boolean convertStringsLazily = true;
@@ -1198,7 +1198,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     int iBufLength = retBufferLength.getValue() & 0xffff;
     if (iBufLength == 0) {
-      return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
+      return new NotesViewLookupResultData(null, Collections.emptyList(),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
           retSignalFlags.getWord(), null, indexModifiedSequenceNo, null);
     } else {
@@ -1322,7 +1322,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     int iBufLength = retBufferLength.getValue();
     if (iBufLength == 0 || result.getMaskedValue() == ERR_NOT_FOUND) {
-      return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
+      return new NotesViewLookupResultData(null, Collections.emptyList(),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
           word(retSignalFlags.getValue()), null, indexModifiedSequenceNo,
           new JNADominoDateTime(retDiffTimeStruct));
