@@ -77,14 +77,13 @@ public class NotesLookupResultBufferDecoder {
 	 * @param indexModifiedSequenceNo index modified sequence no
 	 * @param retDiffTime only set in {@link JNADominoCollection#readEntriesExt(com.hcl.domino.jna.data.JNADominoCollectionPosition, com.hcl.domino.data.Navigate, boolean, int, com.hcl.domino.data.Navigate, int, Set, DominoDateTime, com.hcl.domino.jna.data.JNAIDTable, Integer)}
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertDominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param singleColumnLookupName for single column lookups, programmatic name of lookup column
 	 * @return collection data
 	 */
 	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
 			ByteBuffer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
 			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
-			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
+			boolean convertStringsLazily, String singleColumnLookupName) {
 
 		int bufferPos = 0;
 		
@@ -233,7 +232,7 @@ public class NotesLookupResultBufferDecoder {
 					ItemValueTableDataImpl itemTableData;
 					try(Pos p = withPos(bufferPtr, bufferPos)) {
 					itemTableData = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr,
-							convertStringsLazily, convertDominoDateTimeToCalendar, decodeAllValues);
+							convertStringsLazily, decodeAllValues);
 					}
 
 					//move to the end of the buffer
@@ -253,7 +252,7 @@ public class NotesLookupResultBufferDecoder {
 					ItemTableDataImpl itemTableData;
 					try(Pos p = withPos(bufferPtr, bufferPos)) {
 					  itemTableData = (ItemTableDataImpl) decodeItemTable(bufferPtr, convertStringsLazily,
-							convertDominoDateTimeToCalendar, decodeAllValues);
+							decodeAllValues);
 					}
 
 					//move to the end of the buffer
@@ -280,7 +279,6 @@ public class NotesLookupResultBufferDecoder {
 	 * @param columnFormulasFixedOrder column item names/formulas in a fixed order (matching the summary buffer content)
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
@@ -288,9 +286,9 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
 		
-		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr, convertStringsLazily, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
 		return itemTableData;
 	}
@@ -304,7 +302,6 @@ public class NotesLookupResultBufferDecoder {
 	 * @param columnFormulasFixedOrder column item names/formulas in a fixed order (matching the summary buffer content)
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
@@ -312,9 +309,9 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
 
-		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTableLarge(bufferPtr, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTableLarge(bufferPtr, convertStringsLazily, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
 		return itemTableData;
 	}
@@ -324,12 +321,11 @@ public class NotesLookupResultBufferDecoder {
 	 * 
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
 	public static IItemValueTableData decodeItemValueTableLarge(ByteBuffer bufferPtr,
-			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean convertStringsLazily, boolean decodeAllValues) {
 		int bufferPos = bufferPtr.position();
 		
 //		The information in a view summary of values is as follows:
@@ -368,13 +364,13 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemValueTableDataImpl data = new ItemValueTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
+		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 		
 		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
 		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths, data,
-				convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+				convertStringsLazily, decodeAllValues);
 
 		return data;
 	}
@@ -384,12 +380,11 @@ public class NotesLookupResultBufferDecoder {
 	 * 
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
 	public static IItemValueTableData decodeItemValueTable(ByteBuffer bufferPtr,
-			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean convertStringsLazily, boolean decodeAllValues) {
 		int bufferPos = bufferPtr.position();
 		
 		
@@ -423,13 +418,13 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemValueTableDataImpl data = new ItemValueTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
+		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 
 		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
 		populateItemValueTableData(itemValuePtr, itemsCount, null, itemValueLengths, data,
-				convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+				convertStringsLazily, decodeAllValues);
 
 		return data;
 	}
@@ -447,7 +442,7 @@ public class NotesLookupResultBufferDecoder {
 	 */
 	private static void populateItemValueTableData(Pointer bufferPtr, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
-			boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean decodeAllValues) {
 		int bufferPos = 0;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
@@ -501,27 +496,15 @@ public class NotesLookupResultBufferDecoder {
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
-                        if (convertJNADominoDateTimeToCalendar) {
-                          Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-                          decodedItemValues[j] = cal;
-                        } else {
-                          DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-                          decodedItemValues[j] = td;
-                        }
+                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j] = td;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
 					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
                         decodedItemValues[j]  = numberList;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
-					    List<Object> calendarValues;
-                        if (convertJNADominoDateTimeToCalendar) {
-                            calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
-                        }
-                        else {
-                            calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
-                        }
-                        decodedItemValues[j] = calendarValues;
+                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
 					    break;
 					}
 				}
@@ -547,12 +530,11 @@ public class NotesLookupResultBufferDecoder {
 	 * @param itemValueLengths lengths of the item values
 	 * @param retData data object to populate
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
 	private static void populateItemValueTableLargeData(Pointer bufferPtr, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
-			boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean decodeAllValues) {
 		int bufferPos = 0;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
@@ -609,27 +591,15 @@ public class NotesLookupResultBufferDecoder {
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
-                        if (convertJNADominoDateTimeToCalendar) {
-                          Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-                          decodedItemValues[j] = cal;
-                        } else {
-                          DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-                          decodedItemValues[j] = td;
-                        }
+                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j] = td;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
 					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
                         decodedItemValues[j]  = numberList;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
-					    List<Object> calendarValues;
-                        if (convertJNADominoDateTimeToCalendar) {
-                            calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
-                        }
-                        else {
-                            calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
-                        }
-                        decodedItemValues[j] = calendarValues;
+                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
 					    break;
 					}
 				}
@@ -652,12 +622,11 @@ public class NotesLookupResultBufferDecoder {
 	 * 
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
 	public static IItemTableData decodeItemTableLarge(ByteBuffer bufferPtr,
-			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean convertStringsLazily, boolean decodeAllValues) {
 		int bufferPos = bufferPtr.position();
 		// ULONG Length
 		// USHORT Items
@@ -683,13 +652,13 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
+		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = length;
 		data.m_itemsCount = itemsCount;
 		
 		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
 		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths,
-				data, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+				data, convertStringsLazily, decodeAllValues);
 		
 		return data;
 	}
@@ -699,12 +668,11 @@ public class NotesLookupResultBufferDecoder {
 	 * 
 	 * @param bufferPtr pointer to a buffer
 	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
 	public static IItemTableData decodeItemTable(ByteBuffer bufferPtr,
-			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			boolean convertStringsLazily, boolean decodeAllValues) {
 		int bufferPos = bufferPtr.position();
 
 //		typedef struct {
@@ -731,14 +699,14 @@ public class NotesLookupResultBufferDecoder {
 		}
 		
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
+		data.setPreferNotesTimeDates(false);
 		data.m_itemsCount = itemsCount;
 		data.m_totalBufferLength = length; 
 		
 		//ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
 		Pointer ptr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
 		populateItemValueTableData(ptr, itemsCount, itemNameLengths, itemValueLengths,
-				data, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
+				data, convertStringsLazily, decodeAllValues);
 		
 		return data;
 	}

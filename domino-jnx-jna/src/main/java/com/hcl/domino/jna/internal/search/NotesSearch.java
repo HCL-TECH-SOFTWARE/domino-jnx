@@ -558,7 +558,6 @@ public class NotesSearch {
             } else {
               if (summaryBufferPtr != null && Pointer.nativeValue(summaryBufferPtr) != 0) {
                 boolean convertStringsLazily = true;
-                boolean convertNotesTimeDateToCalendar = false;
 
                 if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
                   // Pad out the amount we read a bit to account for extra data
@@ -573,22 +572,22 @@ public class NotesSearch {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemValueTableLargeWithColumnNames(db,
                             searchMatch.getNoteID(), columnFormulasFixedOrder, buf,
-                            convertStringsLazily, convertNotesTimeDateToCalendar, false);
+                            convertStringsLazily, false);
                   } else {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemValueTableWithColumnNames(db,
                             searchMatch.getNoteID(), columnFormulasFixedOrder, buf,
-                            convertStringsLazily, convertNotesTimeDateToCalendar, false);
+                            convertStringsLazily, false);
                   }
                 } else {
                   ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()).order(ByteOrder.nativeOrder());
                   if (hasLargeSearchSupport) {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemTableLarge(buf,
-                            convertStringsLazily, convertNotesTimeDateToCalendar, false);
+                            convertStringsLazily, false);
                   } else {
                     itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(buf,
-                        convertStringsLazily, convertNotesTimeDateToCalendar, false);
+                        convertStringsLazily, false);
                   }
                 }
               }

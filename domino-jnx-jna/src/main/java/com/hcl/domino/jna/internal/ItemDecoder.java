@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
@@ -57,7 +56,10 @@ public class ItemDecoder {
 	}
 	
     public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily) {
-      // read a text list item value
+      // USHORT ListItems
+      // USHORT[ListItems] StringLengths
+      // ...string data
+      
       int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
 
       List<Object> listValues = new ArrayList<>(listCountAsInt);
@@ -251,85 +253,6 @@ public class ItemDecoder {
         return calendarValues;
     
     }
-	
-	/**
-	 * @param ptr a pointer to native time/date values
-	 * @return a {@link List} of {@link Calendar} and {@code Calendar[]} objects
-	 * 	representing the time/date values
-	 */
-	public static List<Object> decodeTimeDateList(Pointer ptr) {
-		//read number of list and range entries in range
-		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
-		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
-		
-		//skip range header
-		int bufferPos = JNANotesConstants.rangeSize;
-		
-		List<Object> calendarValues = new ArrayList<>(listEntriesAsInt + rangeEntriesAsInt);
-		
-		for (int t=0; t<listEntriesAsInt; t++) {
-			int[] innards = new int[2];
-			innards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize);
-            innards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 4);
-			Calendar calDate = NotesDateTimeUtils.innardsToCalendar(innards);
-			if (calDate!=null) {
-				calendarValues.add(calDate);
-			}
-			else {
-				//invalid TimeDate detected; we produce a "null" value to be able to detect this error
-				Calendar nullCal = Calendar.getInstance(TimeZone.getTimeZone("GMT")); //$NON-NLS-1$
-				nullCal.set(Calendar.YEAR, 1);
-				nullCal.set(Calendar.MONTH, 1);
-				nullCal.set(Calendar.DAY_OF_MONTH, 1);
-				nullCal.set(Calendar.HOUR, 0);
-				nullCal.set(Calendar.MINUTE, 0);
-				nullCal.set(Calendar.SECOND, 0);
-				nullCal.set(Calendar.MILLISECOND, 0);
-				calendarValues.add(nullCal);
-			}
-		}
-		
-		//move position to the range data
-        bufferPos += listEntriesAsInt * JNANotesConstants.timeDateSize;
-		
-		for (int t=0; t<rangeEntriesAsInt; t++) {
-          int[] lowerTimeDateInnards = new int[2];
-          lowerTimeDateInnards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize);
-          lowerTimeDateInnards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 4);
-          int[] upperTimeDateInnards = new int[2];
-          upperTimeDateInnards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 8);
-          upperTimeDateInnards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 12);
-			
-			Calendar lowerCalDate = NotesDateTimeUtils.innardsToCalendar(lowerTimeDateInnards);
-			if (lowerCalDate==null) {
-				//invalid TimeDate detected; we produce a "null" value to be able to detect this error
-				lowerCalDate = Calendar.getInstance(TimeZone.getTimeZone("GMT")); //$NON-NLS-1$
-				lowerCalDate.set(Calendar.YEAR, 1);
-				lowerCalDate.set(Calendar.MONTH, 1);
-				lowerCalDate.set(Calendar.DAY_OF_MONTH, 1);
-				lowerCalDate.set(Calendar.HOUR, 0);
-				lowerCalDate.set(Calendar.MINUTE, 0);
-				lowerCalDate.set(Calendar.SECOND, 0);
-				lowerCalDate.set(Calendar.MILLISECOND, 0);
-			}
-			Calendar upperCalDate = NotesDateTimeUtils.innardsToCalendar(upperTimeDateInnards);
-			if (upperCalDate==null) {
-				//invalid TimeDate detected; we produce a "null" value to be able to detect this error
-				upperCalDate = Calendar.getInstance(TimeZone.getTimeZone("GMT")); //$NON-NLS-1$
-				upperCalDate.set(Calendar.YEAR, 0);
-				upperCalDate.set(Calendar.MONTH, 0);
-				upperCalDate.set(Calendar.DAY_OF_MONTH, 0);
-				upperCalDate.set(Calendar.HOUR, 0);
-				upperCalDate.set(Calendar.MINUTE, 0);
-				upperCalDate.set(Calendar.SECOND, 0);
-				upperCalDate.set(Calendar.MILLISECOND, 0);
-			}
-			
-			calendarValues.add(new Calendar[] {lowerCalDate, upperCalDate});
-		}
-		
-		return calendarValues;
-	}
 
 	/**
 	 * Reads a value from a value pointer in memory.

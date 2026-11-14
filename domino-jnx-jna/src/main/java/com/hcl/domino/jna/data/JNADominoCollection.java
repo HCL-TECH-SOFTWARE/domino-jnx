@@ -935,13 +935,12 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     } else {
       boolean convertStringsLazily = true;
-      boolean convertNotesTimeDateToCalendar = false;
 
       NotesViewLookupResultData viewData =
           NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, buf,
               0, retNumMatches.getValue(), returnMask, retSignalFlags.getWord(),
               retIndexPos.toPosString(), retSequence.getValue(), null,
-              convertStringsLazily, convertNotesTimeDateToCalendar, null);
+              convertStringsLazily, null);
       return viewData;
     }
   }
@@ -1193,7 +1192,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retSignalFlags.getWord(), null, indexModifiedSequenceNo, null);
     } else {
       boolean convertStringsLazily = true;
-      boolean convertNotesTimeDateToCalendar = false;
 
       return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
         Pointer bufferPtr = Mem.OSLockObject(handleByVal);
@@ -1202,7 +1200,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(JNADominoCollection.this, buf,
                   retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask, retSignalFlags.getWord(),
                   null, indexModifiedSequenceNo, null,
-                  convertStringsLazily, convertNotesTimeDateToCalendar, null);
+                  convertStringsLazily, null);
         } finally {
           Mem.OSUnlockObject(handleByVal);
           Mem.OSMemFree(handleByVal).orElseThrow();
@@ -1319,7 +1317,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           new JNADominoDateTime(retDiffTimeStruct));
     } else {
       boolean convertStringsLazily = true;
-      boolean convertNotesTimeDateToCalendar = false;
       return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
         Pointer bufferPtr = Mem.OSLockObject(handleByVal);
         try {
@@ -1328,7 +1325,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
                   retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
                   retSignalFlags.getWord(), null,
                   indexModifiedSequenceNo, retDiffTimeWrap, convertStringsLazily,
-                  convertNotesTimeDateToCalendar, singleColumnLookupName);
+                  singleColumnLookupName);
         } finally {
           Mem.OSUnlockObject(handleByVal);
           Mem.OSMemFree(handleByVal).orElseThrow();
@@ -2185,7 +2182,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
 
     final boolean convertStringsLazily = true;
-    final boolean convertNotesTimeDateToCalendar = false;
 
     final Set<ReadMask> returnMaskToUse = EnumSet.copyOf(returnMask);
     // make sure every read entry looks the same (collectionstats might otherwise add data at
@@ -2211,7 +2207,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
               .decodeCollectionLookupResultBuffer(JNADominoCollection.this,
                   buf,
                   0, ctx1.EntriesThisChunk & 0xffff, returnMaskToUse, word(0), null,
-                  0, null, convertStringsLazily, convertNotesTimeDateToCalendar, null);
+                  0, null, convertStringsLazily, null);
 
           for (JNACollectionEntry currEntry : viewData.getEntries()) {
             Action action = callback.entryRead(viewCallbackObj, currEntry);
