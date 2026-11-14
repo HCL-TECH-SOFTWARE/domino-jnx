@@ -42,6 +42,7 @@ import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.design.DesignUtil;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
@@ -91,6 +92,7 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.NotesSearchKeyEncoder;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
+import com.hcl.domino.jna.utils.ThreadBuffers;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
@@ -313,7 +315,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @return index modified sequence number
    */
   public int getIndexModifiedSequenceNo() {
-    JNADominoDateTime ndtModified = (JNADominoDateTime) getLastModifiedTime();
+    DefaultDominoDateTime ndtModified = (DefaultDominoDateTime) getLastModifiedTime();
     return ndtModified.getInnards()[0];
   }
 
@@ -331,7 +333,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
   public DominoDateTime getLastModifiedTime() {
     checkDisposed();
 
-    NotesTimeDateStruct retLastModifiedTime = NotesTimeDateStruct.newInstance();
+    ByteBuffer retLastModifiedTime = ThreadBuffers.BUFFER_TIMEDATE.get();
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
@@ -340,7 +342,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       return 0;
     });
 
-    return new JNADominoDateTime(retLastModifiedTime);
+    int[] innards = new int[2];
+    innards[0] = retLastModifiedTime.getInt(0);
+    innards[1] = retLastModifiedTime.getInt(1);
+    return new DefaultDominoDateTime(innards);
   }
 
   /**
@@ -352,7 +357,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
   public DominoDateTime getLastAccessedTime() {
     checkDisposed();
 
-    NotesTimeDateStruct retLastAccessedTime = NotesTimeDateStruct.newInstance();
+    ByteBuffer retLastAccessedTime = ThreadBuffers.BUFFER_TIMEDATE.get();
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
@@ -361,7 +366,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       return 0;
     });
 
-    return new JNADominoDateTime(retLastAccessedTime);
+    int[] innards = new int[2];
+    innards[0] = retLastAccessedTime.getInt(0);
+    innards[1] = retLastAccessedTime.getInt(1);
+    return new DefaultDominoDateTime(innards);
   }
 
   /**
@@ -373,7 +381,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
   public DominoDateTime getNextDiscardTime() {
     checkDisposed();
 
-    NotesTimeDateStruct retNextDiscardTime = NotesTimeDateStruct.newInstance();
+    ByteBuffer retNextDiscardTime = ThreadBuffers.BUFFER_TIMEDATE.get();
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
@@ -382,7 +390,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       return 0;
     });
 
-    return new JNADominoDateTime(retNextDiscardTime);
+    int[] innards = new int[2];
+    innards[0] = retNextDiscardTime.getInt(0);
+    innards[1] = retNextDiscardTime.getInt(1);
+    return new DefaultDominoDateTime(innards);
   }
 
 
@@ -1276,7 +1287,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     String singleColumnLookupName = columnNumber == null ? null : getColumnName(columnNumber);
 
     NotesTimeDateStruct diffTimeStruct = diffTime == null ? null
-        : NotesTimeDateStruct.newInstance(((JNADominoDateTime) diffTime).getInnards());
+        : NotesTimeDateStruct.newInstance(((DefaultDominoDateTime) diffTime).getInnards());
 
     DHANDLE.ByReference retBuffer = DHANDLE.newInstanceByReference();
 

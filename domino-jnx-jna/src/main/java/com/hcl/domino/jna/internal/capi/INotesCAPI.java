@@ -664,12 +664,12 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByReference rethSelectedList,
 			DHANDLE.ByValue nameList);
 
-    void NIFGetLastModifiedTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
+    void NIFGetLastModifiedTime(DHANDLE.ByValue hCollection, ByteBuffer retLastModifiedTime);
     @UndocumentedAPI
-    void NIFGetLastAccessedTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
+    void NIFGetLastAccessedTime(DHANDLE.ByValue hCollection, ByteBuffer retLastModifiedTime);
 
     @UndocumentedAPI
-    void NIFGetNextDiscardTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
+    void NIFGetNextDiscardTime(DHANDLE.ByValue hCollection, ByteBuffer retLastModifiedTime);
     STATUS NIFGetCollation(DHANDLE.ByValue hCollection, WORD.ByReference retCollationNum);
     STATUS NIFSetCollation(DHANDLE.ByValue hCollection, WORD CollationNum);
 	/**
