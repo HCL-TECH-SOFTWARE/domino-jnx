@@ -23,17 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
-import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNADocument;
-import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.LMBCSString;
 import com.hcl.domino.util.JNXStringUtil;
 
@@ -45,7 +42,6 @@ import com.hcl.domino.util.JNXStringUtil;
 public class ItemTableDataDocAdapter implements IItemTableData {
 	private JNADocument m_doc;
 	private LinkedHashMap<String,String> m_columnValues;
-	private boolean m_preferTimeDate = true;
 	private TypedAccess m_typedItems;
 	private Map<String,Formula> m_compiledFormulas;
 	private Map<String,List<Object>> m_compiledFormulaValues;
@@ -186,16 +182,6 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 	}
 
 	@Override
-	public void setPreferNotesTimeDates(boolean b) {
-		m_preferTimeDate  = b;
-	}
-
-	@Override
-	public boolean isPreferNotesTimeDates() {
-		return m_preferTimeDate;
-	}
-
-	@Override
 	public boolean hasItem(String itemName) {
 		return m_typedItems.hasItem(itemName);
 	}
@@ -227,9 +213,6 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 					data.put(itemNames.get(i), val);
 				}
 			}
-			else if(!isPreferNotesTimeDates() && val instanceof JNADominoDateTime) {
-				data.put(itemNames.get(i), NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)val));
-			}
 			else if (val instanceof List) {
 				if (decodeLMBCS) {
 					//check for LMBCS strings and JNADominoDateTime
@@ -242,10 +225,6 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 							hasLMBCS = true;
 							break;
 						}
-						else if (!isPreferNotesTimeDates() && valAsList.get(j) instanceof JNADominoDateTime) {
-							hasTimeDate = true;
-							break;
-						}
 					}
 					
 					if (hasLMBCS || hasTimeDate) {
@@ -254,11 +233,7 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 							Object currObj = valAsList.get(j);
 							if (currObj instanceof LMBCSString) {
 								convList.add(((LMBCSString)currObj).getValue());
-							}
-							else if (!isPreferNotesTimeDates() && currObj instanceof JNADominoDateTime) {
-								convList.add(NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)currObj));
-							}
-							else {
+							} else {
 								convList.add(currObj);
 							}
 						}

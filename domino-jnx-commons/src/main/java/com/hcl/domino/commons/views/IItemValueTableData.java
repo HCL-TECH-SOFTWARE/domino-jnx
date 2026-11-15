@@ -77,24 +77,4 @@ public interface IItemValueTableData {
    * @return value or null if unknown type
    */
   Object getItemValue(int index);
-
-  /**
-   * Returns whether methods like {@link #getItemValue(int)} should return
-   * {@link DominoDateTime}
-   * instead of {@link Calendar} and {@link DominoDateRange} instead of
-   * Calendar[].
-   * 
-   * @return true to prefer NotesTimeDate
-   */
-  boolean isPreferNotesTimeDates();
-
-  /**
-   * Sets whether methods like {@link #getItemValue(int)} should return
-   * {@link DominoDateTime}
-   * instead of {@link Calendar} and {@link DominoDateRange} instead of
-   * Calendar[].
-   * 
-   * @param b true to prefer NotesTimeDate (false by default)
-   */
-  void setPreferNotesTimeDates(boolean b);
 }

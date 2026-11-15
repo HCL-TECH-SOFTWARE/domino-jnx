@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
-import com.hcl.domino.commons.data.DefaultDominoDateRange;
-import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.IItemValueTableData;
 import com.hcl.domino.commons.views.NotesCollectionStats;
@@ -364,7 +362,6 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemValueTableDataImpl data = new ItemValueTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 		
@@ -418,7 +415,6 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemValueTableDataImpl data = new ItemValueTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 
@@ -652,7 +648,6 @@ public class NotesLookupResultBufferDecoder {
 		}
 
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(true);
 		data.m_totalBufferLength = length;
 		data.m_itemsCount = itemsCount;
 		
@@ -699,7 +694,6 @@ public class NotesLookupResultBufferDecoder {
 		}
 		
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
-		data.setPreferNotesTimeDates(false);
 		data.m_itemsCount = itemsCount;
 		data.m_totalBufferLength = length; 
 		
@@ -726,7 +720,6 @@ public class NotesLookupResultBufferDecoder {
 		protected int[] m_itemValueLengthsInBytes;
 		protected boolean m_convertStringsLazily;
 		protected boolean m_freed;
-		private boolean m_preferJNADominoDateTimes;
 		
 		public ItemValueTableDataImpl(boolean convertStringsLazily) {
 			m_convertStringsLazily = convertStringsLazily;
@@ -738,16 +731,6 @@ public class NotesLookupResultBufferDecoder {
 		
 		public boolean isFreed() {
 			return m_freed;
-		}
-		
-		@Override
-		public void setPreferNotesTimeDates(boolean b) {
-			m_preferJNADominoDateTimes = b;
-		}
-		
-		@Override
-		public boolean isPreferNotesTimeDates() {
-			return m_preferJNADominoDateTimes;
 		}
 
 		@Override
@@ -786,50 +769,7 @@ public class NotesLookupResultBufferDecoder {
 				}
 			}
 			
-			if (type == ItemDataTypeConstants.TYPE_TIME && !isPreferNotesTimeDates()) {
-				if (m_itemValues[index] instanceof JNADominoDateTime) {
-					return NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)m_itemValues[index]);
-				}
-				else if (m_itemValues[index] instanceof JNADominoDateTime[]) {
-					JNADominoDateTime[] range = (JNADominoDateTime[]) m_itemValues[index];
-					Calendar[] convertedRange = new Calendar[] {NotesDateTimeUtils.timeDateToCalendar(range[0]), NotesDateTimeUtils.timeDateToCalendar(range[1])};
-					return convertedRange;
-				}
-				else {
-					//should not happen
-					return m_itemValues[index];
-				}
-			}
-			else if (type == ItemDataTypeConstants.TYPE_TIME_RANGE && m_itemValues[index] instanceof List && !isPreferNotesTimeDates()) {
-				@SuppressWarnings("unchecked")
-				List<Object> tdList = (List<Object>) m_itemValues[index];
-				
-				List<Object> calList = new ArrayList<>(tdList.size());
-				
-				for (int i=0; i<tdList.size(); i++) {
-					if (tdList.get(i) instanceof JNADominoDateTime) {
-						calList.add(NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime) tdList.get(i)));
-					}
-					else if (tdList.get(i) instanceof DefaultDominoDateRange) {
-						DefaultDominoDateRange range = (DefaultDominoDateRange) tdList.get(i);
-						Calendar[] convertedRange = new Calendar[] {NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)range.getStartDateTime()), NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)range.getEndDateTime())};
-						calList.add(convertedRange);
-					}
-					else if (tdList.get(i) instanceof JNADominoDateTime[]) {
-						JNADominoDateTime[] range = (JNADominoDateTime[]) tdList.get(i);
-						Calendar[] convertedRange = new Calendar[] {NotesDateTimeUtils.timeDateToCalendar(range[0]), NotesDateTimeUtils.timeDateToCalendar(range[1])};
-						calList.add(convertedRange);
-					}
-					else {
-						//should not happen
-						calList.add(tdList.get(i));
-					}
-				}
-				
-				return calList;
-			} else {
-				return m_itemValues[index];
-			}
+			return m_itemValues[index];
 		}
 		
 		@Override
@@ -924,7 +864,6 @@ public class NotesLookupResultBufferDecoder {
 					}
 				}
 			};
-			setPreferNotesTimeDates(true);
 		}
 		
 		public ItemTableDataImpl(boolean convertStringsLazily) {
@@ -1098,9 +1037,6 @@ public class NotesLookupResultBufferDecoder {
 						data.put(m_itemNames[i], val);
 					}
 				}
-				else if(!isPreferNotesTimeDates() && val instanceof JNADominoDateTime) {
-					data.put(m_itemNames[i], NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)val));
-				}
 				else if (val instanceof List) {
 					if (decodeLMBCS) {
 						//check for LMBCS strings and JNADominoDateTime
@@ -1113,10 +1049,6 @@ public class NotesLookupResultBufferDecoder {
 								hasLMBCS = true;
 								break;
 							}
-							else if (!isPreferNotesTimeDates() && valAsList.get(j) instanceof JNADominoDateTime) {
-								hasTimeDate = true;
-								break;
-							}
 						}
 						
 						if (hasLMBCS || hasTimeDate) {
@@ -1125,11 +1057,7 @@ public class NotesLookupResultBufferDecoder {
 								Object currObj = valAsList.get(j);
 								if (currObj instanceof LMBCSString) {
 									convList.add(((LMBCSString)currObj).getValue());
-								}
-								else if (!isPreferNotesTimeDates() && currObj instanceof JNADominoDateTime) {
-									convList.add(NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)currObj));
-								}
-								else {
+								} else {
 									convList.add(currObj);
 								}
 							}

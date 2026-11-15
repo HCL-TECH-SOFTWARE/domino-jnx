@@ -22,7 +22,6 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
@@ -143,16 +142,6 @@ public class NotesDateTimeUtils {
       throw new IllegalArgumentException(MessageFormat.format("Invalid innard size: {0}, expected 2", innards.length));
     }
     return innards[0] != NotesConstants.ALLDAY;
-  }
-
-  /**
-   * Method to convert a {@link DominoDateTime} object to a Java {@link Calendar}
-   * 
-   * @param timeDate time date to convert
-   * @return calendar or null if timedate contains invalid innards
-   */
-  public static Calendar timeDateToCalendar(final DominoDateTime timeDate) {
-    return GregorianCalendar.from(timeDate.toOffsetDateTime().toZonedDateTime());
   }
 
 }
