@@ -46,8 +46,6 @@ import com.sun.jna.ptr.PointerByReference;
  * @author Karsten Lehmann
  */
 public class NotesStringUtils {
-	private static final String PREF_USEOSLINEBREAK = "NotesStringUtils.useOSLineDelimiter"; //$NON-NLS-1$
-	
 	//use simple cache for string-lmbcs conversion of short string
 	private static final boolean USE_STRING2LMBCS_CACHE = true;
 	//max length of each string-lmbcs cache entry in characters
@@ -87,8 +85,6 @@ public class NotesStringUtils {
 	@SuppressWarnings("unused")
 	private static void setUseOSLineDelimiter(boolean b) {
 		if (isUseOSLineDelimiter() != b) {
-//			NotesGC.setCustomValue(PREF_USEOSLINEBREAK, Boolean.valueOf(b));
-			
 			//remove all cached values that contain newlines
 			List<String> keysWithNull = m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.getKeys();
 			for (String currKey : keysWithNull) {
