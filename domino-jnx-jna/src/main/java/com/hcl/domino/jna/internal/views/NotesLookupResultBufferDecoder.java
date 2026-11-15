@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna.internal.views;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -52,7 +50,6 @@ import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.LMBCSString;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.search.ItemTableDataDocAdapter;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 /**
@@ -79,7 +76,7 @@ public class NotesLookupResultBufferDecoder {
 	 * @return collection data
 	 */
 	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
-			ByteBuffer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
+			Pointer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
 			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
 			boolean convertStringsLazily, String singleColumnLookupName) {
 
@@ -105,8 +102,7 @@ public class NotesLookupResultBufferDecoder {
 
         //special optimized case for reading only note ids
 		if (returnMask.size()==1 && returnMask.contains(ReadMask.NOTEID)) {
-			int[] noteIds = new int[numEntriesReturned];
-			bufferPtr.asIntBuffer().get(noteIds);
+			int[] noteIds = bufferPtr.getIntArray(bufferPos, numEntriesReturned);
 			
 			for (int i=0; i<noteIds.length; i++) {
 				JNACollectionEntry newData = new JNACollectionEntry(parentCollection);
@@ -199,11 +195,7 @@ public class NotesLookupResultBufferDecoder {
 				}
 				if (readPosition) {
 					int level = Short.toUnsignedInt(bufferPtr.getShort(bufferPos));
-					int[] posArr = new int[level+1];
-					try(Pos p = withPos(bufferPtr, bufferPos + 2 /* level */  + 2 /* MinLevel+MaxLevel */)) {
-    					IntBuffer intBuf = bufferPtr.asIntBuffer();
-    					intBuf.get(posArr);
-    				}
+					int[] posArr = bufferPtr.getIntArray(bufferPos+2+2, level+1);
 
 					newData.setPosition(posArr);
 
@@ -225,16 +217,11 @@ public class NotesLookupResultBufferDecoder {
 					//					value of item #3
 					//					....
 
-					int startBufferPosOfSummaryValues = bufferPos;
-
-					ItemValueTableDataImpl itemTableData;
-					try(Pos p = withPos(bufferPtr, bufferPos)) {
-					itemTableData = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr,
+					ItemValueTableDataImpl itemTableData = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr.share(bufferPos),
 							convertStringsLazily, decodeAllValues);
-					}
 
 					//move to the end of the buffer
-					bufferPos = startBufferPosOfSummaryValues + itemTableData.getTotalBufferLength();
+					bufferPos += itemTableData.getTotalBufferLength();
 
 					Object[] decodedItemValues = new Object[itemTableData.getItemsCount()];
 					for (int c=0; c<itemTableData.getItemsCount(); c++) {
@@ -247,11 +234,8 @@ public class NotesLookupResultBufferDecoder {
 				if (readSummary) {
 					int startBufferPosOfSummaryValues = bufferPos;
 
-					ItemTableDataImpl itemTableData;
-					try(Pos p = withPos(bufferPtr, bufferPos)) {
-					  itemTableData = (ItemTableDataImpl) decodeItemTable(bufferPtr, convertStringsLazily,
+					ItemTableDataImpl itemTableData= (ItemTableDataImpl) decodeItemTable(bufferPtr.share(bufferPos), convertStringsLazily,
 							decodeAllValues);
-					}
 
 					//move to the end of the buffer
 					bufferPos = startBufferPosOfSummaryValues + itemTableData.getTotalBufferLength();
@@ -284,7 +268,7 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
+			Pointer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
 		
 		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr, convertStringsLazily, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
@@ -307,7 +291,7 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
+			Pointer bufferPtr, boolean convertStringsLazily, boolean decodeAllValues) {
 
 		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTableLarge(bufferPtr, convertStringsLazily, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
@@ -322,9 +306,9 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
-	public static IItemValueTableData decodeItemValueTableLarge(ByteBuffer bufferPtr,
+	public static IItemValueTableData decodeItemValueTableLarge(Pointer bufferPtr,
 			boolean convertStringsLazily, boolean decodeAllValues) {
-		int bufferPos = bufferPtr.position();
+		int bufferPos = 0;
 		
 //		The information in a view summary of values is as follows:
 //
@@ -354,9 +338,6 @@ public class NotesLookupResultBufferDecoder {
 		//read all item lengths
 		for (int j=0; j<itemsCount; j++) {
 			//convert USHORT to int without sign
-		  if(bufferPtr.capacity() < bufferPos+4) {
-		    throw new IllegalArgumentException("Unable to read a DWORD from buffer at pos " + bufferPos + "; capacity=" + bufferPtr.capacity());
-		  }
 			itemValueLengths[j] = (int) bufferPtr.getInt(bufferPos); // & 0xffff);
 			bufferPos += 4;
 		}
@@ -365,8 +346,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 		
-		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
-		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths, data,
+		populateItemValueTableLargeData(bufferPtr, bufferPos, itemsCount, itemNameLengths, itemValueLengths, data,
 				convertStringsLazily, decodeAllValues);
 
 		return data;
@@ -380,9 +360,9 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
-	public static IItemValueTableData decodeItemValueTable(ByteBuffer bufferPtr,
+	public static IItemValueTableData decodeItemValueTable(Pointer bufferPtr,
 			boolean convertStringsLazily, boolean decodeAllValues) {
-		int bufferPos = bufferPtr.position();
+		int bufferPos = 0;
 		
 		
 //		The information in a view summary of values is as follows:
@@ -418,8 +398,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 
-		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
-		populateItemValueTableData(itemValuePtr, itemsCount, null, itemValueLengths, data,
+		populateItemValueTableData(bufferPtr, bufferPos, itemsCount, null, itemValueLengths, data,
 				convertStringsLazily, decodeAllValues);
 
 		return data;
@@ -436,19 +415,19 @@ public class NotesLookupResultBufferDecoder {
 	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
-	private static void populateItemValueTableData(Pointer bufferPtr, int itemsCount,
+	private static void populateItemValueTableData(Pointer bufferPtr, int bufferPosInit, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
 			boolean decodeAllValues) {
-		int bufferPos = 0;
+		int bufferPos = bufferPosInit;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
-		Pointer[] itemValueBufferPointers = new Pointer[itemsCount];
+        int[] itemValueBufferOffsets = new int[itemsCount];
 		int[] itemValueBufferSizes = new int[itemsCount];
 		Object[] decodedItemValues = new Object[itemsCount];
 		
 		for (int j=0; j<itemsCount; j++) {
 			if (itemNameLengths!=null && itemNameLengths[j]>0) {
-              itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr.share(bufferPos), itemNameLengths[j]);
+              itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr, itemNameLengths[j], bufferPos);
 				bufferPos += itemNameLengths[j];
 			}
 			
@@ -468,7 +447,7 @@ public class NotesLookupResultBufferDecoder {
 				bufferPos += 2;
 				
 				//read item values
-				itemValueBufferPointers[j] = bufferPtr.share(bufferPos);
+				itemValueBufferOffsets[j] = bufferPos;
 				itemValueBufferSizes[j] = itemValueLengths[j] - 2;
 				
 				//skip item value
@@ -479,35 +458,36 @@ public class NotesLookupResultBufferDecoder {
 
 					switch(itemDataTypes[j]) {
 					  case ItemDataTypeConstants.TYPE_TEXT:
-					    Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
+					    Object strVal = ItemDecoder.decodeTextValue(bufferPtr, itemValueBufferSizeAsInt, convertStringsLazily, itemValueBufferOffsets[j]);
                         decodedItemValues[j] = strVal;
                         break;
 					  case ItemDataTypeConstants.TYPE_TEXT_LIST:
                         //read a text list item value
-                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
+                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(bufferPtr, convertStringsLazily, itemValueBufferOffsets[j]);
                         decodedItemValues[j]  = listValues;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER:
-                        double numVal = itemValueBufferPointers[j].getDouble(0);
+                        double numVal = bufferPtr.getDouble(itemValueBufferOffsets[j]);
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
-                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(bufferPtr, itemValueBufferSizeAsInt, itemValueBufferOffsets[j]);
                         decodedItemValues[j] = td;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
-					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+					    List<Object> numberList = ItemDecoder.decodeNumberList(bufferPtr, itemValueBufferSizeAsInt, itemValueBufferOffsets[j]);
                         decodedItemValues[j]  = numberList;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
-                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
+                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(bufferPtr, itemValueBufferOffsets[j]);
 					    break;
 					}
 				}
 			}
 		}
 		
-		retData.m_itemValueBufferPointers = itemValueBufferPointers;
+		retData.m_ptr = bufferPtr;
+		retData.m_itemValueBufferOffsets = itemValueBufferOffsets;
 		retData.m_itemValueBufferSizes = itemValueBufferSizes;
 		retData.m_itemValues = decodedItemValues;
 		retData.m_itemDataTypes = itemDataTypes;
@@ -528,19 +508,20 @@ public class NotesLookupResultBufferDecoder {
 	 * @param convertStringsLazily true to delay string conversion until the first use
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
-	private static void populateItemValueTableLargeData(Pointer bufferPtr, int itemsCount,
+	private static void populateItemValueTableLargeData(Pointer bufferPtr, int bufferPosInit, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
 			boolean decodeAllValues) {
-		int bufferPos = 0;
+		int bufferPos = bufferPosInit;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
 		Pointer[] itemValueBufferPointers = new Pointer[itemsCount];
+		int[] itemValueBufferOffsets = new int[itemsCount];
 		int[] itemValueBufferSizes = new int[itemsCount];
 		Object[] decodedItemValues = new Object[itemsCount];
 		
 		for (int j=0; j<itemsCount; j++) {
 			if (itemNameLengths!=null && itemNameLengths[j]>0) {
-				itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr.share(bufferPos), itemNameLengths[j]);
+				itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr, itemNameLengths[j], bufferPos);
 				bufferPos += itemNameLengths[j];
 			}
 			
@@ -560,7 +541,8 @@ public class NotesLookupResultBufferDecoder {
 				bufferPos += 2;
 				
 				//read item values
-				itemValueBufferPointers[j] = bufferPtr.share(bufferPos);
+				itemValueBufferPointers[j] = bufferPtr;
+				itemValueBufferOffsets[j] = bufferPos;
 				itemValueBufferSizes[j] = itemValueLengths[j] - 2;
 				
 				//skip item value
@@ -574,35 +556,36 @@ public class NotesLookupResultBufferDecoder {
 					
 					switch(itemDataTypes[j]) {
 					  case ItemDataTypeConstants.TYPE_TEXT:
-					    Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
+					    Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily, itemValueBufferOffsets[j]);
                         decodedItemValues[j] = strVal;
                         break;
 					  case ItemDataTypeConstants.TYPE_TEXT_LIST:
 					    //read a text list item value
-                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
+                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily, itemValueBufferOffsets[j]);
                         decodedItemValues[j]  = listValues;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER:
-					    double numVal = itemValueBufferPointers[j].getDouble(0);
+					    double numVal = itemValueBufferPointers[j].getDouble(itemValueBufferOffsets[j]);
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
-                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt, itemValueBufferOffsets[j]);
                         decodedItemValues[j] = td;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
-					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt, itemValueBufferOffsets[j]);
                         decodedItemValues[j]  = numberList;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
-                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
+                        decodedItemValues[j] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferOffsets[j]);
 					    break;
 					}
 				}
 			}
 		}
 		
-		retData.m_itemValueBufferPointers = itemValueBufferPointers;
+		retData.m_ptr = bufferPtr;
+		retData.m_itemValueBufferOffsets = itemValueBufferOffsets;
 		retData.m_itemValueBufferSizes = itemValueBufferSizes;
 		retData.m_itemValues = decodedItemValues;
 		retData.m_itemDataTypes = itemDataTypes;
@@ -621,9 +604,9 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
-	public static IItemTableData decodeItemTableLarge(ByteBuffer bufferPtr,
+	public static IItemTableData decodeItemTableLarge(Pointer bufferPtr,
 			boolean convertStringsLazily, boolean decodeAllValues) {
-		int bufferPos = bufferPtr.position();
+		int bufferPos = 0;
 		// ULONG Length
 		// USHORT Items
 		// USHORT filler
@@ -651,8 +634,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = length;
 		data.m_itemsCount = itemsCount;
 		
-		Pointer itemValuePtr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
-		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths,
+		populateItemValueTableLargeData(bufferPtr, bufferPos, itemsCount, itemNameLengths, itemValueLengths,
 				data, convertStringsLazily, decodeAllValues);
 		
 		return data;
@@ -666,9 +648,9 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
-	public static IItemTableData decodeItemTable(ByteBuffer bufferPtr,
+	public static IItemTableData decodeItemTable(Pointer bufferPtr,
 			boolean convertStringsLazily, boolean decodeAllValues) {
-		int bufferPos = bufferPtr.position();
+		int bufferPos = 0;
 
 //		typedef struct {
 //			   USHORT Length; /*  total length of this buffer */
@@ -698,8 +680,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = length; 
 		
 		//ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
-		Pointer ptr = Native.getDirectBufferPointer(bufferPtr).share(bufferPos);
-		populateItemValueTableData(ptr, itemsCount, itemNameLengths, itemValueLengths,
+		populateItemValueTableData(bufferPtr, bufferPos, itemsCount, itemNameLengths, itemValueLengths,
 				data, convertStringsLazily, decodeAllValues);
 		
 		return data;
@@ -711,8 +692,9 @@ public class NotesLookupResultBufferDecoder {
 	 * @author Karsten Lehmann
 	 */
 	private static class ItemValueTableDataImpl implements IItemValueTableData {
-		protected Pointer[] m_itemValueBufferPointers;
+		protected Pointer m_ptr;
 		protected int[] m_itemValueBufferSizes;
+		protected int[] m_itemValueBufferOffsets;
 		protected Object[] m_itemValues;
 		protected int[] m_itemDataTypes;
 		protected int m_totalBufferLength;
@@ -746,25 +728,25 @@ public class NotesLookupResultBufferDecoder {
 
 				switch(type) {
 				  case ItemDataTypeConstants.TYPE_TEXT:
-				    m_itemValues[index] = ItemDecoder.decodeTextValue(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt, m_convertStringsLazily);
+				    m_itemValues[index] = ItemDecoder.decodeTextValue(m_ptr, itemValueBufferSizeAsInt, m_convertStringsLazily, m_itemValueBufferOffsets[index]);
 				    break;
 				  case ItemDataTypeConstants.TYPE_TEXT_LIST:
 				    //read a text list item value
-                    m_itemValues[index] = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(m_itemValueBufferPointers[index], m_convertStringsLazily);
+                    m_itemValues[index] = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(m_ptr, m_convertStringsLazily, m_itemValueBufferOffsets[index]);
 				    break;
 				  case ItemDataTypeConstants.TYPE_NUMBER:
-				    m_itemValues[index] = m_itemValueBufferPointers[index].getDouble(0);
+				    m_itemValues[index] = m_ptr.getDouble(m_itemValueBufferOffsets[index]);
 				    break;
 				  case ItemDataTypeConstants.TYPE_TIME:
 				    //we always store JNADominoDateTime and convert to Calendar if requested by caller
-                    m_itemValues[index] = ItemDecoder.decodeTimeDateAsNotesTimeDate(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+                    m_itemValues[index] = ItemDecoder.decodeTimeDateAsNotesTimeDate(m_ptr, itemValueBufferSizeAsInt, m_itemValueBufferOffsets[index]);
 				    break;
 				  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
-				    m_itemValues[index] = ItemDecoder.decodeNumberList(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+				    m_itemValues[index] = ItemDecoder.decodeNumberList(m_ptr, itemValueBufferSizeAsInt, m_itemValueBufferOffsets[index]);
 				    break;
 				  case ItemDataTypeConstants.TYPE_TIME_RANGE:
 				    //we always store a List of JNADominoDateTime and convert to Calendar if requested by caller
-                    m_itemValues[index] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(m_itemValueBufferPointers[index]);
+                    m_itemValues[index] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(m_ptr, m_itemValueBufferOffsets[index]);
 				    break;
 				}
 			}
@@ -830,7 +812,8 @@ public class NotesLookupResultBufferDecoder {
 			m_itemNames = columnFormulasFixedOrder==null ? new String[0] : columnFormulasFixedOrder.keySet().toArray(new String[0]);
 			
 			m_wrappedValueTable = valueTable;
-			m_itemValueBufferPointers = valueTable.m_itemValueBufferPointers;
+			m_ptr = valueTable.m_ptr;
+			m_itemValueBufferOffsets = valueTable.m_itemValueBufferOffsets;
 			m_itemValueBufferSizes = valueTable.m_itemValueBufferSizes;
 			m_itemValues = valueTable.m_itemValues;
 			m_itemDataTypes = valueTable.m_itemDataTypes;
@@ -1077,12 +1060,6 @@ public class NotesLookupResultBufferDecoder {
 			}
 			return data;
 		}
-	}
-	
-	private static Pos withPos(ByteBuffer buf, int pos) {
-	  int oldPos = buf.position();
-	  buf.position(pos);
-	  return () -> buf.position(oldPos);
 	}
 	
 	@FunctionalInterface

@@ -410,28 +410,29 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     short dataType = valuePtr.getShort(0);
 
+    // TODO switch to using offset methods
     Pointer valueDataPtr = valuePtr.share(2);
     int valueDataLength = valueLength - 2;
 
     switch (dataType) {
       case ItemDataTypeConstants.TYPE_TEXT:
-        String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false);
+        String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false, 0);
         return txtVal == null ? Collections.emptyList() : Arrays.asList((Object) txtVal);
       case ItemDataTypeConstants.TYPE_TEXT_LIST:
         List<Object> textList = valueDataLength == 0 ? Collections.emptyList()
-            : ItemDecoder.decodeTextListValue(valueDataPtr, false);
+            : ItemDecoder.decodeTextListValue(valueDataPtr, false, 0);
         return textList == null ? Collections.emptyList() : textList;
       case ItemDataTypeConstants.TYPE_NUMBER:
         double numVal = valueDataPtr.getDouble(0);
         return Arrays.asList((Object) Double.valueOf(numVal));
       case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
-        List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength);
+        List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength, 0);
         return numberList == null ? Collections.emptyList() : numberList;
       case ItemDataTypeConstants.TYPE_TIME:
-        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength);
+        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength, 0);
         return Arrays.asList((Object) td);
       case ItemDataTypeConstants.TYPE_TIME_RANGE:
-        List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr);
+        List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr, 0);
         return tdValues == null ? Collections.emptyList() : tdValues;
       case ItemDataTypeConstants.TYPE_NOTEREF_LIST:
         int numEntries = valueDataPtr.getShort(0) & 0xffff;

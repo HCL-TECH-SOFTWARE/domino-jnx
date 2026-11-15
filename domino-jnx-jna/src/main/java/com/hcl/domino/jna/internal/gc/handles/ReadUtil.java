@@ -100,7 +100,7 @@ public class ReadUtil {
 		return accessMemory(hRange, freeMemory, new MemoryAccess<List<DominoDateRange>>() {
 			@Override
 			public List<DominoDateRange> access(Pointer ptr) {
-				List<Object> range = ItemDecoder.decodeTimeDateListAsNotesTimeDate(ptr);
+				List<Object> range = ItemDecoder.decodeTimeDateListAsNotesTimeDate(ptr, 0);
 				
 				return range.stream().filter((currObj) -> {
 					return (currObj instanceof DominoDateRange);

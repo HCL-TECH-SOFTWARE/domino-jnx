@@ -161,11 +161,11 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 		}
 		switch(type) {
 		case TYPE_TEXT: {
-			String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false);
+			String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false, 0);
 			return txtVal==null ? Collections.emptyList() : Arrays.asList((Object) txtVal);
 		}
 		case TYPE_TEXT_LIST: {
-			List<Object> textList = valueDataLength==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(valueDataPtr, false);
+			List<Object> textList = valueDataLength==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(valueDataPtr, false, 0);
 			return textList==null ? Collections.emptyList() : textList;
 		}
 		case TYPE_NUMBER: {
@@ -173,15 +173,15 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 			return Arrays.asList((Object) Double.valueOf(numVal));
 		}
 		case TYPE_NUMBER_RANGE: {
-			List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength);
+			List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength, 0);
 			return numberList==null ? Collections.emptyList() : numberList;
 		}
 		case TYPE_TIME: {
-			DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength);
+			DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength, 0);
 			return td==null ? Collections.emptyList() : Arrays.asList((Object) td);
 		}
 		case TYPE_TIME_RANGE: {
-			List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr);
+			List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr, 0);
 			return tdValues==null ? Collections.emptyList() : tdValues;
 		}
 		case TYPE_UNAVAILABLE: {

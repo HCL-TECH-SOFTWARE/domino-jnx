@@ -1356,7 +1356,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       if (!phList.isNull()) {
         List<String> clusterInfo =
             LockUtil.lockHandle(phList, hList -> Mem.OSLockObject(hList, ptr -> {
-              List<Object> decoded = ItemDecoder.decodeTextListValue(ptr, false);
+              List<Object> decoded = ItemDecoder.decodeTextListValue(ptr, false, 0);
               return decoded.stream().map(String::valueOf).collect(Collectors.toList());
             }));
         clusterName = Optional.of(clusterInfo.get(0));

@@ -560,8 +560,6 @@ public class NotesSearch {
                 boolean convertStringsLazily = true;
 
                 if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
-                  // Pad out the amount we read a bit to account for extra data
-                  ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()+256).order(ByteOrder.nativeOrder());
                   // flag to just return the column values is used; so the
                   // buffer contains an ITEM_VALUE_TABLE with column values
                   // in the column order instead of an ITEM_TABLE with columnname/columnvalue
@@ -571,22 +569,21 @@ public class NotesSearch {
                   if (hasLargeSearchSupport) {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemValueTableLargeWithColumnNames(db,
-                            searchMatch.getNoteID(), columnFormulasFixedOrder, buf,
+                            searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr,
                             convertStringsLazily, false);
                   } else {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemValueTableWithColumnNames(db,
-                            searchMatch.getNoteID(), columnFormulasFixedOrder, buf,
+                            searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr,
                             convertStringsLazily, false);
                   }
                 } else {
-                  ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()).order(ByteOrder.nativeOrder());
                   if (hasLargeSearchSupport) {
                     itemTableData =
-                        NotesLookupResultBufferDecoder.decodeItemTableLarge(buf,
+                        NotesLookupResultBufferDecoder.decodeItemTableLarge(summaryBufferPtr,
                             convertStringsLazily, false);
                   } else {
-                    itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(buf,
+                    itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(summaryBufferPtr,
                         convertStringsLazily, false);
                   }
                 }

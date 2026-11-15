@@ -54,7 +54,7 @@ public class JNANativeItemCoder implements NativeItemCoder {
 	    try(DisposableMemory mem = new DisposableMemory(buf.length)) {
     		ByteBuffer dest = mem.getByteBuffer(0, mem.size());
     		dest.put(buf);
-    		return (List<String>)(List<?>)ItemDecoder.decodeTextListValue(mem, false);
+    		return (List<String>)(List<?>)ItemDecoder.decodeTextListValue(mem, false, 0);
 	    }
 	}
 	

@@ -280,7 +280,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
       Pointer pList = Mem.OSLockObject(hListByVal);
       try {
         @SuppressWarnings("rawtypes")
-        List clusterMates = ItemDecoder.decodeTextListValue(pList, false);
+        List clusterMates = ItemDecoder.decodeTextListValue(pList, false, 0);
         return (List<String>) clusterMates;
       } finally {
         Mem.OSUnlockObject(hListByVal);

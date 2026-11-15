@@ -20,7 +20,6 @@ import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -902,32 +901,18 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
-    List<byte[]> chunks = new ArrayList<>();
-    int[] size = { 0 };
-    NotesCallbacks.NIFFindByKeyProc proc = ctx -> {
-      byte[] chunkBytes = ctx.SummaryBuffer.getByteArray(0, Short.toUnsignedInt(ctx.wSizeOfChunk));
-      chunks.add(chunkBytes);
-      size[0] += chunkBytes.length;
-      return INotesErrorConstants.NOERROR;
-    };
-
     DHANDLE.ByReference retHBuffer = DHANDLE.newInstanceByReference();
-    final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
     STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
-      NotesCAPI.get().NIFFindByKeyExtended4(
+      NotesCAPI.get().NIFFindByKeyExtended2(
         handleByVal,
         keyBuffer,
         findFlagsBitMask,
         returnMaskBitMask,
-        null,
         retIndexPos,
         retNumMatches,
         retSignalFlags,
         retHBuffer,
-        retSequence,
-        proc,
-        ctx,
-        0)
+        retSequence)
     );
 
     if (result.getMaskedValue() == ERR_NOT_FOUND) {
@@ -935,24 +920,24 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     }
     result.orElseThrow();
-    
-    // Write the data to a direct ByteBuffer to pass to the native API
-    ByteBuffer buf = ByteBuffer.allocateDirect(size[0]).order(ByteOrder.nativeOrder());
-    chunks.forEach(buf::put);
-    buf.position(0);
 
-    if (retNumMatches.getValue() == 0 || !buf.hasRemaining()) {
+    if (retNumMatches.getValue() == 0 || retHBuffer.isNull()) {
       return new NotesViewLookupResultData(null, Collections.emptyList(), 0, 0,
           retSignalFlags.getWord(), null, retSequence.getValue(), null);
     } else {
-      boolean convertStringsLazily = true;
-
-      NotesViewLookupResultData viewData =
-          NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, buf,
+      return LockUtil.lockHandle(retHBuffer, hBuffer -> {
+        boolean convertStringsLazily = true;
+        Pointer bufferPtr = Mem.OSLockObject(hBuffer);
+        try {
+          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, bufferPtr,
               0, retNumMatches.getValue(), returnMask, retSignalFlags.getWord(),
               retIndexPos.toPosString(), retSequence.getValue(), null,
               convertStringsLazily, null);
-      return viewData;
+        } finally {
+          Mem.OSUnlockObject(hBuffer);
+          Mem.OSMemFree(hBuffer).orElseThrow();
+        }
+      });
     }
   }
 
@@ -1207,8 +1192,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
         Pointer bufferPtr = Mem.OSLockObject(handleByVal);
         try {
-          ByteBuffer buf = bufferPtr.getByteBuffer(0, iBufLength).order(ByteOrder.nativeOrder());
-          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(JNADominoCollection.this, buf,
+          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(JNADominoCollection.this, bufferPtr,
                   retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask, retSignalFlags.getWord(),
                   null, indexModifiedSequenceNo, null,
                   convertStringsLazily, null);
@@ -1331,8 +1315,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       return LockUtil.lockHandle(retBuffer, (handleByVal) -> {
         Pointer bufferPtr = Mem.OSLockObject(handleByVal);
         try {
-          ByteBuffer buf = bufferPtr.getByteBuffer(0, iBufLength).order(ByteOrder.nativeOrder());
-          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, buf,
+          return NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, bufferPtr,
                   retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
                   retSignalFlags.getWord(), null,
                   indexModifiedSequenceNo, retDiffTimeWrap, convertStringsLazily,
@@ -2213,10 +2196,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         ctx1.TotalDataInBuffer += wSizeOFChunk & 0xffff;
 
         if (summaryBuffer != null && Pointer.nativeValue(summaryBuffer) != 0) {
-          ByteBuffer buf = summaryBuffer.getByteBuffer(0, wSizeOFChunk & 0xFFFF).order(ByteOrder.nativeOrder());
           NotesViewLookupResultData viewData = NotesLookupResultBufferDecoder
               .decodeCollectionLookupResultBuffer(JNADominoCollection.this,
-                  buf,
+                  summaryBuffer,
                   0, ctx1.EntriesThisChunk & 0xffff, returnMaskToUse, word(0), null,
                   0, null, convertStringsLazily, null);
 

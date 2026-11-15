@@ -16,9 +16,8 @@
  */
 package com.hcl.domino.jna.internal;
 
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
@@ -26,7 +25,6 @@ import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
-import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -35,151 +33,118 @@ import com.sun.jna.Pointer;
 
 public class ItemDecoder {
   
-  public static Object decodeTextValue(Pointer ptr, int valueLength, boolean convertStringsLazily) {
+  public static Object decodeTextValue(Pointer ptr, int valueLength, boolean convertStringsLazily, int offset) {
 		if (valueLength<=0) {
 			return ""; //$NON-NLS-1$
 		}
 		
 		if (convertStringsLazily) {
 			byte[] stringDataArr = new byte[valueLength];
-			ptr.read(0, stringDataArr, 0, valueLength);
+			ptr.read(offset, stringDataArr, 0, valueLength);
 
-			LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-			return lmbcsString;
+			return new LMBCSString(stringDataArr);
 		}
 		else {
-			String txtVal = NotesStringUtils.fromLMBCS(ptr, valueLength);
-			return txtVal;
+			return NotesStringUtils.fromLMBCS(ptr, valueLength, offset);
 		}
 	}
 	
-    public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily) {
+    public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily, int offset) {
       // USHORT ListItems
       // USHORT[ListItems] StringLengths
       // ...string data
       
-      int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
+      int listCountAsInt = Short.toUnsignedInt(ptr.getShort(offset));
 
-      List<Object> listValues = new ArrayList<>(listCountAsInt);
+      Object[] listValues = new Object[listCountAsInt];
       
-      short[] strLens = ptr.getShortArray(2, listCountAsInt);
+      short[] strLens = ptr.getShortArray(offset+2, listCountAsInt);
 
-      int ptrPos = 2 + (listCountAsInt*2);
+      int ptrPos = offset + 2 + (listCountAsInt*2);
       for (int i = 0; i < listCountAsInt; i++) {
         int strLen = Short.toUnsignedInt(strLens[i]);
-        Pointer pointerToTextInMem = ptr.share(ptrPos);
 
         if (strLen == 0) {
-          listValues.add(""); //$NON-NLS-1$
+          listValues[i] = "";
         } else {
           if (convertStringsLazily) {
             byte[] stringDataArr = new byte[strLen];
-            pointerToTextInMem.read(0, stringDataArr, 0, strLen);
+            ptr.read(ptrPos, stringDataArr, 0, strLen);
 
             LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-            listValues.add(lmbcsString);
+            listValues[i] = lmbcsString;
           } else {
             String currListEntry =
-                NotesStringUtils.fromLMBCS(pointerToTextInMem, strLen);
-            listValues.add(currListEntry);
+                NotesStringUtils.fromLMBCS(ptr, strLen, ptrPos);
+            listValues[i] = currListEntry;
           }
         }
         
         ptrPos += strLen;
       }
 
-      return listValues;
+      return Arrays.asList(listValues);
     }
 	
-	public static DominoDateTime decodeTimeDateAsNotesTimeDate(final Pointer ptr, int valueLength) {
-		int[] innards = ptr.getIntArray(0, 2);
+	public static DominoDateTime decodeTimeDateAsNotesTimeDate(final Pointer ptr, int valueLength, int offset) {
+		int[] innards = ptr.getIntArray(offset, 2);
 		
 		return new JNADominoDateTime(innards);
 	}
 
-	public static List<Object> decodeNumberList(Pointer ptr, int valueLength) {
+	public static List<Object> decodeNumberList(Pointer ptr, int valueLength, int offset) {
 		
 		//read number of list and range entries in range
 	  // WORD ListEntries
 	  // WORD RangeEntries
-		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
-		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
+		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(offset));
+		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(offset+2));
 		
 		//skip range header
-		Pointer ptrAfterRange = ptr.share(JNANotesConstants.rangeSize);
+		int offsetAfterRange = offset + JNANotesConstants.rangeSize;
 		
 		//we create an object list, because number ranges contain double[] array
 		//(not sure whether number ranges exist in real life)
-		List<Object> numberValues = new ArrayList<>(listEntriesAsInt + rangeEntriesAsInt);
+		Object[] numberValues = new Object[listEntriesAsInt + rangeEntriesAsInt];
 		for (int t=0; t<listEntriesAsInt; t++) {
-			double numVal = ptrAfterRange.getDouble(t * 8);
-			numberValues.add(numVal);
+			double numVal = ptr.getDouble(offsetAfterRange + t * 8);
+			numberValues[t] = numVal;
 		}
 		//skip list entries part of the buffer
-		Pointer ptrAfterListEntries = ptrAfterRange.share(8 * listEntriesAsInt);
+		offsetAfterRange += 8 * listEntriesAsInt;
 		
 		for (int t=0; t<rangeEntriesAsInt; t++) {
-			Pointer ptrListEntry = ptrAfterListEntries.share(t * JNANotesConstants.numberPairSize);
-			NotesNumberPairStruct numPair = NotesNumberPairStruct.newInstance(ptrListEntry);
-			numPair.read();
-			double lower = numPair.Lower;
-			double upper = numPair.Upper;
-			
-			numberValues.add(new double[] {lower, upper});
+			double[] numPair = ptr.getDoubleArray(offsetAfterRange + t * JNANotesConstants.numberPairSize, 2);
+			numberValues[listEntriesAsInt+t] = numPair;
 		}
 		
-		return numberValues;
+		return Arrays.asList(numberValues);
 	}
-
-    public static List<Object> decodeNumberList(ByteBuffer ptr, int valueLength) {
-        //read number of list and range entries in range
-        int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
-        int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
-        
-        int bufferPos = JNANotesConstants.rangeSize;
-        
-        //we create an object list, because number ranges contain double[] array
-        //(not sure whether number ranges exist in real life)
-        List<Object> numberValues = new ArrayList<>(listEntriesAsInt + rangeEntriesAsInt);
-        for (int t=0; t<listEntriesAsInt; t++) {
-            double numVal = ptr.getDouble(bufferPos + t * 8);
-            numberValues.add(numVal);
-        }
-        //skip list entries part of the buffer
-        bufferPos += 8 * listEntriesAsInt;
-        
-        for (int t=0; t<rangeEntriesAsInt; t++) {
-            double lower = ptr.getDouble(bufferPos + t * JNANotesConstants.numberPairSize);
-            double upper = ptr.getDouble(bufferPos + t * JNANotesConstants.numberPairSize + 8);
-            
-            numberValues.add(new double[] {lower, upper});
-        }
-        
-        return numberValues;
-    }
-	public static List<Object> decodeTimeDateListAsNotesTimeDate(Pointer ptr) {
+	
+	public static List<Object> decodeTimeDateListAsNotesTimeDate(Pointer ptr, int offset) {
 		//read number of list and range entries in range
 		// WORD ListEntries
 		// WORD RangeEntries
-		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
-		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
+		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(offset));
+		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(offset+2));
 		
 		//skip range header
-		Pointer ptrAfterRange = ptr.share(JNANotesConstants.rangeSize);
+		int offsetAfterRange = offset + JNANotesConstants.rangeSize;
 		
-		List<Object> calendarValues = new ArrayList<>(listEntriesAsInt + rangeEntriesAsInt);
+		Object[] calendarValues = new Object[listEntriesAsInt + rangeEntriesAsInt];
 		
 		for (int t=0; t<listEntriesAsInt; t++) {
-			Pointer ptrListEntry = ptrAfterRange.share(t * JNANotesConstants.timeDateSize);
-			int[] innards = ptrListEntry.getIntArray(0, 2);
-			calendarValues.add(new JNADominoDateTime(innards));
+		  int entryOffset = offsetAfterRange + t * JNANotesConstants.timeDateSize;
+			int[] innards = ptr.getIntArray(entryOffset, 2);
+			calendarValues[t] = new JNADominoDateTime(innards);
 		}
 		
 		//move position to the range data
-		Pointer ptrAfterListEntries = ptrAfterRange.share(listEntriesAsInt * JNANotesConstants.timeDateSize);
+		offsetAfterRange += listEntriesAsInt * JNANotesConstants.timeDateSize;
 		
+		// TODO switch to reading ints
 		for (int t=0; t<rangeEntriesAsInt; t++) {
-			Pointer ptrRangeEntry = ptrAfterListEntries.share(t * JNANotesConstants.timeDatePairSize);
+			Pointer ptrRangeEntry = ptr.share(offsetAfterRange + t * JNANotesConstants.timeDatePairSize);
 			NotesTimeDatePairStruct timeDatePair = NotesTimeDatePairStruct.newInstance(ptrRangeEntry);
 			timeDatePair.read();
 			
@@ -192,50 +157,12 @@ public class ItemDecoder {
 			DominoDateTime lowerTimeDate = new JNADominoDateTime(lowerTimeDateInnards);
 			DominoDateTime upperTimeDate = new JNADominoDateTime(upperTimeDateInnards);
 			
-			calendarValues.add(new DefaultDominoDateRange(lowerTimeDate, upperTimeDate));
+			calendarValues[listEntriesAsInt+t] = new DefaultDominoDateRange(lowerTimeDate, upperTimeDate);
 		}
 		
-		return calendarValues;
+		return Arrays.asList(calendarValues);
 	
 	}
-
-    public static List<Object> decodeTimeDateListAsNotesTimeDate(ByteBuffer ptr) {
-        //read number of list and range entries in range
-        int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
-        int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
-        
-        //skip range header
-        int bufferPos = JNANotesConstants.rangeSize;
-        
-        List<Object> calendarValues = new ArrayList<>(listEntriesAsInt + rangeEntriesAsInt);
-        
-        for (int t=0; t<listEntriesAsInt; t++) {
-            int[] innards = new int[2];
-            innards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize);
-            innards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 4);
-            calendarValues.add(new JNADominoDateTime(innards));
-        }
-        
-        //move position to the range data
-        bufferPos += listEntriesAsInt * JNANotesConstants.timeDateSize;
-        
-        for (int t=0; t<rangeEntriesAsInt; t++) {
-          int[] lowerTimeDateInnards = new int[2];
-          lowerTimeDateInnards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize);
-          lowerTimeDateInnards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 4);
-          int[] upperTimeDateInnards = new int[2];
-          upperTimeDateInnards[0] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 8);
-          upperTimeDateInnards[1] = ptr.getInt(bufferPos + t * JNANotesConstants.timeDateSize + 12);
-            
-            DominoDateTime lowerTimeDate = new JNADominoDateTime(lowerTimeDateInnards);
-            DominoDateTime upperTimeDate = new JNADominoDateTime(upperTimeDateInnards);
-            
-            calendarValues.add(new DefaultDominoDateRange(lowerTimeDate, upperTimeDate));
-        }
-        
-        return calendarValues;
-    
-    }
 
 	/**
 	 * Reads a value from a value pointer in memory.
@@ -254,17 +181,17 @@ public class ItemDecoder {
 		
 		switch(type) {
 		case TYPE_TEXT:
-			return decodeTextValue(ptr, length, false);
+			return decodeTextValue(ptr, length, false, 0);
 		case TYPE_TEXT_LIST:
-			return length==0 ? Collections.emptyList() : decodeTextListValue(ptr, false);
+			return length==0 ? Collections.emptyList() : decodeTextListValue(ptr, false, 0);
 		case TYPE_NUMBER:
         return ptr.getDouble(0);
 		case TYPE_TIME:
-			return decodeTimeDateAsNotesTimeDate(ptr, length);
+			return decodeTimeDateAsNotesTimeDate(ptr, length, 0);
 		case TYPE_NUMBER_RANGE:
-			return decodeNumberList(ptr, length);
+			return decodeNumberList(ptr, length, 0);
 		case TYPE_TIME_RANGE:
-			return decodeTimeDateListAsNotesTimeDate(ptr);
+			return decodeTimeDateListAsNotesTimeDate(ptr, 0);
 		case TYPE_COMPOSITE:
 		  // Add back space for the type val skipped below
 		  byte[] data = new byte[length+2];

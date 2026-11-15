@@ -431,23 +431,35 @@ public class NotesStringUtils {
 	 * @return decoded String
 	 */
 	public static String fromLMBCS(Pointer inPtr, int textLen) {
-		if (inPtr==null || Pointer.nativeValue(inPtr)==0 || textLen==0) {
-			return ""; //$NON-NLS-1$
-		}
-		else if (textLen==-1) {
-			textLen = getNullTerminatedLength(inPtr);
-			
-			byte[] dataArr = inPtr.getByteArray(0, textLen);
-			
-			return fromLMBCS(dataArr);
-		}
-		else {
-			//check for \0 as newline delimiter
-			byte[] dataArr = inPtr.getByteArray(0, textLen);
-			
-			return fromLMBCS(dataArr);
-		}
+	  return fromLMBCS(inPtr, textLen, 0);
 	}
+
+    /**
+     * Converts an LMBCS string to a Java String
+     * 
+     * @param inPtr pointer in memory
+     * @param textLen length of text, use -1 to let the method search for a terminating \0
+     * @param offset the offset within the pointer to read from
+     * @return decoded String
+     */
+    public static String fromLMBCS(Pointer inPtr, int textLen, int offset) {
+        if (inPtr==null || Pointer.nativeValue(inPtr)==0 || textLen==0) {
+            return ""; //$NON-NLS-1$
+        }
+        else if (textLen==-1) {
+            textLen = getNullTerminatedLength(inPtr);
+            
+            byte[] dataArr = inPtr.getByteArray(offset, textLen);
+            
+            return fromLMBCS(dataArr);
+        }
+        else {
+            //check for \0 as newline delimiter
+            byte[] dataArr = inPtr.getByteArray(offset, textLen);
+            
+            return fromLMBCS(dataArr);
+        }
+    }
 	
     public static String fromLMBCS(ByteBuffer buf, int textLen) {
       if(textLen == 0) {
