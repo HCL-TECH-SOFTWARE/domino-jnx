@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -654,14 +655,21 @@ public class NotesStringUtils {
 		}
 
 		boolean inStrHasLinebreaks;
-		String[] lines;
-		if (inStr.contains("\n") && lineBreakConversion != LineBreakConversion.ORIGINAL) { //$NON-NLS-1$
-			lines = inStr.split("\\r?\\n", -1); //$NON-NLS-1$
+		List<String> lines;
+		if (inStr.indexOf('\n') > -1 && lineBreakConversion != LineBreakConversion.ORIGINAL) { //$NON-NLS-1$
+		  lines = new ArrayList<>();
+		  JNXStringUtil.splitString(inStr, '\n', true, lines);
+		  for(int i = 0; i < lines.size(); i++) {
+		    String line = lines.get(i);
+		    int lineLen = line.length();
+		    if(lineLen > 0 && line.charAt(lineLen-1) == '\r') {
+		      lines.set(i, line.substring(0, lineLen-1));
+		    }
+		  }
 			inStrHasLinebreaks = true;
 		}
 		else {
-			lines = new String[1];
-			lines[0] = inStr;
+			lines = Collections.singletonList(inStr);
 			inStrHasLinebreaks = false;
 		}
 		
@@ -672,7 +680,7 @@ public class NotesStringUtils {
 		DisposableMemory inputBufUTF8 = null;
 		DisposableMemory outputBufLMBCS = null;
 		try {
-			for (int i=0; i<lines.length; i++) {
+			for (int i=0; i<lines.size(); i++) {
 				if (inStrHasLinebreaks && i>0) {
 					if (lineBreakConversion == LineBreakConversion.NULL) {
 						//replace line breaks with null characters
@@ -688,22 +696,23 @@ public class NotesStringUtils {
 					}
 				}
 				
-				if (lines[i].length() == 0) {
+				String line = lines.get(i);
+				if (line.length() == 0) {
 					continue;
 				}
 				
 				//check if string only contains ascii characters that map 1:1 to LMBCS;
 				//in this case we can skip the OSTranslate call
 				boolean isPureAscii = true;
-				for (int x=0; x<lines[i].length(); x++) {
-					char c = lines[i].charAt(x);
+				for (int x=0; x<line.length(); x++) {
+					char c = line.charAt(x);
 					if (c <= 0x1f || c >= 0x80) {
 						isPureAscii = false;
 						break;
 					}
 				}
 				
-				byte[] lineDataAsUTF8 = lines[i].getBytes(StandardCharsets.UTF_8);
+				byte[] lineDataAsUTF8 = line.getBytes(StandardCharsets.UTF_8);
 				
 				if (isPureAscii) {
 					try {
@@ -713,7 +722,7 @@ public class NotesStringUtils {
 					}
 				}
 				else {
-					int worstCaseLMBCSLength = 3 * lines[i].length();
+					int worstCaseLMBCSLength = 3 * line.length();
 					
 					if (inputBufUTF8!=null && inputBufUTF8.size() < lineDataAsUTF8.length) {
 						inputBufUTF8.close();
