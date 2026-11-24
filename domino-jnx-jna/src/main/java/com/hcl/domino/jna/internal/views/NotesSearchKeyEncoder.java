@@ -17,11 +17,8 @@
 package com.hcl.domino.jna.internal.views;
 
 import static java.text.MessageFormat.format;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -206,22 +203,7 @@ public class NotesSearchKeyEncoder {
    */
   private static void addCalendarKey(OutputStream itemOut, OutputStream valueDataOut,
       Calendar currKey) throws Exception {
-    boolean hasDate = NotesDateTimeUtils.hasDate(currKey);
-    boolean hasTime = NotesDateTimeUtils.hasTime(currKey);
-
-    int[] innards;
-    if (hasDate && hasTime) {
-      innards = InnardsConverter.encodeInnards(((GregorianCalendar) currKey).toZonedDateTime());
-    } else if (hasDate) {
-      LocalDate localDate = LocalDate.of(currKey.get(Calendar.YEAR), currKey.get(Calendar.MONTH),
-          currKey.get(Calendar.DAY_OF_MONTH));
-      innards = InnardsConverter.encodeInnards(localDate);
-    } else {
-      LocalTime localTime =
-          LocalTime.of(currKey.get(Calendar.HOUR_OF_DAY), currKey.get(Calendar.MINUTE),
-              currKey.get(Calendar.SECOND), currKey.get(Calendar.MILLISECOND) * 1000 * 1000);
-      innards = InnardsConverter.encodeInnards(localTime);
-    }
+    int[] innards = NotesDateTimeUtils.calendarToInnards(currKey);
 
     addCalendarKey(itemOut, valueDataOut, innards[0], innards[1]);
   }
